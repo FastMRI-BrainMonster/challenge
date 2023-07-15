@@ -52,3 +52,30 @@ class SSIMLoss(nn.Module):
         S = (A1 * A2) / D
 
         return 1 - S.mean()
+
+class kspace_loss(nn.Module):
+    def __init__(self, loss_type="L2"):
+        # args: loss_type: L2 loss or Cosine distance loss
+        super().__init__()
+        if loss_type == "L2":
+            self.loss_func = nn.MSELoss()
+        elif loss_type == "Cosine":
+            self.loss_func = nn.CosineEmbeddingLoss()
+    def forward(self, x, y):
+        loss = self.loss_func(x,y)
+        return loss.mean()
+    
+class total_loss(nn.Module):
+    def __init__(self, win_size: int = 7, k1: float = 0.01, k2: float = 0.03, loss_type = "L2", alpha = 0.5):
+        super().__init__()
+        self.loss_func1 = SSIMLoss(win_size, k1, k2)
+        self.loss_func2 = kspace_loss(loss_type)
+        self.alpha = alpha
+    def forward(self, x, y, kspace_x, kspace_y, data_range):
+        # x: predicted (image, kspace)
+        loss1 = self.loss_func1(x, y, data_range)
+        loss2 = self.loss_func2(kspace_x, kspace_y)
+        loss = self.alpha*loss1 + (1-self.alpha)*loss2
+        return loss
+        
+    

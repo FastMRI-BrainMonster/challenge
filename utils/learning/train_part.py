@@ -11,7 +11,7 @@ import copy
 from collections import defaultdict
 from utils.data.load_data import create_data_loaders
 from utils.common.utils import save_reconstructions, ssim_loss
-from utils.common.loss_function import SSIMLoss
+from utils.common.loss_function import SSIMLoss, total_loss
 from utils.model.varnet import VarNet
 
 import os
@@ -29,8 +29,8 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
         target = target.cuda(non_blocking=True)
         maximum = maximum.cuda(non_blocking=True)
 
-        output = model(kspace, mask)
-        loss = loss_type(output, target, maximum)
+        output, kspace_output = model(kspace, mask)
+        loss = loss_type(output, target, kspace_output, kspace, maximum)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -59,7 +59,7 @@ def validate(args, model, data_loader):
             mask, kspace, target, _, fnames, slices = data
             kspace = kspace.cuda(non_blocking=True)
             mask = mask.cuda(non_blocking=True)
-            output = model(kspace, mask)
+            output, _ = model(kspace, mask)
 
             for i in range(output.shape[0]):
                 reconstructions[fnames[i]][int(slices[i])] = output[i].cpu().numpy()
@@ -139,7 +139,8 @@ def train(args):
     model.load_state_dict(pretrained)
     """
 
-    loss_type = SSIMLoss().to(device=device)
+    #loss_type = SSIMLoss().to(device=device)
+    loss_type = total_loss().to(device=device)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
 
     best_val_loss = 1.
