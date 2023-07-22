@@ -1,4 +1,4 @@
-# Code from https://github.com/jun-pac/SNU-fastMRI-22-summer/blob/master/Code/data_preparation.py
+# Original Code from https://github.com/jun-pac/SNU-fastMRI-22-summer/blob/master/Code/data_preparation.py
 
 import h5py
 import numpy as np
@@ -24,9 +24,10 @@ def get_h5_mask(target):
     mask = np.stack(mask, axis = 0)
     return mask
 
-for ftype in ['train', 'val', 'leaderboard']:
-    imagepath = os.path.join('/root', 'input', ftype, 'image')
-    kspacepath = os.path.join('/root', 'input', ftype, 'kspace')
+for ftype in ['train', 'val', 'leaderboard/acc4', 'leaderboard/acc8']:
+    imagepath = os.path.join('/Data', ftype, 'image')
+    kspacepath = os.path.join('/Data', ftype, 'kspace')
+    savepath = os.path.join('/root/kspace_mask', ftype)
     
     h5list = os.listdir(kspacepath)
     
@@ -34,7 +35,7 @@ for ftype in ['train', 'val', 'leaderboard']:
     
     for hname in tqdm.tqdm(h5list):
         f = h5py.File(os.path.join(imagepath, hname), 'r')
-        k = h5py.File(os.path.join(kspacepath, hname), 'a')
+        k = h5py.File(os.path.join(savepath, hname), 'w')
         
         if "image_label" in k:
             del k["image_label"]
