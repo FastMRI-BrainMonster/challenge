@@ -170,7 +170,7 @@ def train(args):
     start_epoch = 0
 
     # [add] data augmentation
-    current_epoch_fn = lambda: model.get_current_epoch
+    current_epoch_fn = lambda: model.current_epoch
     augmentor = DataAugmentor(args, current_epoch_fn)
     # To do.. augmentation  + transform 
     
