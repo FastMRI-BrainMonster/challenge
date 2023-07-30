@@ -8,7 +8,9 @@ import numpy as np
 from math import exp
 import torch
 import torchvision.transforms.functional as TF
-from mraugment.helpers import complex_crop_if_needed, crop_if_needed, complex_channel_first, complex_channel_last
+from utils.data.helpers import complex_crop_if_needed, crop_if_needed, complex_channel_first, complex_channel_last
+import sys
+sys.path.append('/root/challenge/utils/model')
 from fastmri.data import transforms as T
 from fastmri import fft2c, ifft2c, rss_complex, complex_abs
 
@@ -260,7 +262,7 @@ class DataAugmentor:
         
     def schedule_p(self):
         D = self.hparams.aug_delay
-        T = self.hparams.max_epochs
+        T = self.hparams.num_epochs
         t = self.current_epoch_fn()
         p_max = self.hparams.aug_strength
 
