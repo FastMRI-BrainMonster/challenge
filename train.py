@@ -3,6 +3,7 @@ import argparse
 import shutil
 import os, sys
 from pathlib import Path
+from utils.data.data_augment import DataAugmentor
 
 if os.getcwd() + '/utils/model/' not in sys.path:
     sys.path.insert(1, os.getcwd() + '/utils/model/')
@@ -33,12 +34,14 @@ def parse():
     parser.add_argument('--target-key', type=str, default='image_label', help='Name of target key')
     parser.add_argument('--max-key', type=str, default='max', help='Name of max key in attributes')
     parser.add_argument('--seed', type=int, default=430, help='Fix random seed')
-
-    args = parser.parse_args()
-    return args
+    #[modified]
+    return parser
 
 if __name__ == '__main__':
-    args = parse()
+    # [add] parser for augmentation
+    parser = parse()
+    parser = DataAugmentor.add_augmentation_specific_args(parser)
+    args = parser.parse_args()
     
     # fix seed
     if args.seed is not None:

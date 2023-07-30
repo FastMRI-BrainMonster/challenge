@@ -12,6 +12,7 @@ import h5py
 import os
 
 from collections import defaultdict
+from utils.data.data_augment import DataAugmentor
 from utils.data.load_data import create_data_loaders
 from utils.common.utils import save_reconstructions, ssim_loss
 from utils.common.loss_function import SSIMLoss
@@ -155,14 +156,19 @@ def train(args):
     best_val_loss = 1.
     start_epoch = 0
 
+    # [add] data augmentation
+    current_epoch_fn = lambda: model.current_epoch
+    augmentor = DataAugmentor(args, current_epoch_fn)
+    # To do.. augmentation  + transform 
     
-    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, shuffle=True)
+
+    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, shuffle=True, augmentor=augmentor)
     val_loader = create_data_loaders(data_path = args.data_path_val, args = args)
     
     val_loss_log = np.empty((0, 2))
     for epoch in range(start_epoch, args.num_epochs):
         print(f'Epoch #{epoch:2d} ............... {args.net_name} ...............')
-        
+        model.update_epoch(epoch)
         train_loss, train_time = train_epoch(args, epoch, model, train_loader, optimizer, loss_type)
         val_loss, num_subjects, reconstructions, targets, inputs, val_time = validate(args, model, val_loader)
         
