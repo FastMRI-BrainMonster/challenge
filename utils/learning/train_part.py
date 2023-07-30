@@ -71,10 +71,20 @@ def validate(args, model, data_loader):
             kspace = kspace.cuda(non_blocking=True)
             mask = mask.cuda(non_blocking=True)
             output = model(kspace, mask)
+            target = target.cuda(non_blocking=True)
 
             for i in range(output.shape[0]):
+                 # [ADD] by yxxshin (2023.07.30)
+                brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/val', fnames[i]), 'r')
+                brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
+                brain_mask = brain_mask.cuda(non_blocking=True)
+                
+                output[i] = output[i] * brain_mask[slices[0]]
+                target[i] = target[i] * brain_mask[slices[0]]
+
                 reconstructions[fnames[i]][int(slices[i])] = output[i].cpu().numpy()
-                targets[fnames[i]][int(slices[i])] = target[i].numpy()
+                # targets[fnames[i]][int(slices[i])] = target[i].numpy()
+                targets[fnames[i]][int(slices[i])] = target[i].cpu().numpy()
 
     for fname in reconstructions:
         reconstructions[fname] = np.stack(
