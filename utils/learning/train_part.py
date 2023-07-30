@@ -8,6 +8,9 @@ from tqdm import tqdm
 from pathlib import Path
 import copy
 
+import h5py
+import os
+
 from collections import defaultdict
 from utils.data.data_augment import DataAugmentor
 from utils.data.load_data import create_data_loaders
@@ -24,14 +27,21 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     total_loss = 0.
 
     for iter, data in enumerate(data_loader):
-        mask, kspace, target, maximum, _, _ = data
+        mask, kspace, target, maximum, fname, _ = data
+        
+        # [ADD] by yxxshin (2023.07.22)
+        brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
+        brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
+        brain_mask = brain_mask.cuda(non_blocking=True)
+        
         mask = mask.cuda(non_blocking=True)
         kspace = kspace.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
         maximum = maximum.cuda(non_blocking=True)
 
         output = model(kspace, mask)
-        loss = loss_type(output, target, maximum)
+        loss = loss_type(output * brain_mask, target * brain_mask, maximum)
+        # loss = loss_type(output, target, maximum)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
