@@ -32,12 +32,15 @@ class DataTransform:
             maximum = -1
 
         # [add] for augmentation
-        if self.use_augment: 
-            if self.augmentor.schedule_p() > 0.0:                
-                kspace, target = self.augmentor(input, target.shape)
-         
-
-        kspace = to_tensor(input * mask)
+        kspace = to_tensor(input)
+        # (channel, 768, 396) -> (channel, 768, 396, 2)
         kspace = torch.stack((kspace.real, kspace.imag), dim=-1)
+        
+        if self.use_augment: 
+            if self.augmentor.schedule_p() > 0.0:    
+                kspace, target = self.augmentor(kspace, target.shape)
+        
+        kspace = torch.stack((kspace[:,:,:,0]*mask, kspace[:,:,:,1]*mask), dim=-1)
+        
         mask = torch.from_numpy(mask.reshape(1, 1, kspace.shape[-2], 1).astype(np.float32)).byte()
         return mask, kspace, target, maximum, fname, slice
