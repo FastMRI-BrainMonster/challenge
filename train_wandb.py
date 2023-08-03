@@ -70,6 +70,7 @@ def train_wandb(config = None):
         args.chans = config.chans
         args.sens_chans = config.sens_chans
         
+        torch.cuda.empty_cache()
         train(args)
 
 

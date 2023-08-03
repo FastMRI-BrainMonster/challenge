@@ -26,7 +26,6 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     start_epoch = start_iter = time.perf_counter()
     len_loader = len(data_loader)
     total_loss = 0.
-
     for iter, data in enumerate(data_loader):
         mask, kspace, target, maximum, fname, _ = data
         
@@ -58,7 +57,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
             start_iter = time.perf_counter()
     total_loss = total_loss / len_loader
     
-    wandb.log({"Train_Loss:", total_loss})
+    wandb.log({"Train_Loss": total_loss})
     return total_loss, time.perf_counter() - start_epoch
 
 
@@ -99,7 +98,7 @@ def validate(args, model, data_loader):
         )
     metric_loss = sum([ssim_loss(targets[fname], reconstructions[fname]) for fname in reconstructions])
     num_subjects = len(reconstructions)
-    wandb.log({"Valid_Loss:", metric_loss})
+    wandb.log({"Valid_Loss": metric_loss})
     return metric_loss, num_subjects, reconstructions, targets, None, time.perf_counter() - start
 
 

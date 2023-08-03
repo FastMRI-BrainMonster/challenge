@@ -257,7 +257,6 @@ class DataAugmentor:
                     im = ifft2c(kspace)
                     im = complex_crop_if_needed(im, self.max_train_resolution)
                     kspace = fft2c(im)
-                    
         return kspace, target
         
     def schedule_p(self):
@@ -282,7 +281,7 @@ class DataAugmentor:
     def add_augmentation_specific_args(parser):
         parser.add_argument(
             '--aug_on', 
-            default=False,
+            default=True,
             help='This switch turns data augmentation on.',
             action='store_true'
         )
@@ -372,7 +371,7 @@ class DataAugmentor:
         parser.add_argument(
             '--aug_weight_rot90', 
             type=float, 
-            default=1.0, 
+            default=0, 
             help='Weight of probability of rotation by multiples of 90 degrees. Augmentation probability will be multiplied by this constant'
         )  
         parser.add_argument(
