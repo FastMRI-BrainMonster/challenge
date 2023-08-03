@@ -98,7 +98,6 @@ def validate(args, model, data_loader):
         )
     metric_loss = sum([ssim_loss(targets[fname], reconstructions[fname]) for fname in reconstructions])
     num_subjects = len(reconstructions)
-    wandb.log({"Valid_Loss": metric_loss})
     return metric_loss, num_subjects, reconstructions, targets, None, time.perf_counter() - start
 
 
@@ -196,6 +195,7 @@ def train(args):
 
 
         val_loss = val_loss / num_subjects
+        wandb.log({"Valid_Loss": val_loss})
 
         is_new_best = val_loss < best_val_loss
         best_val_loss = min(best_val_loss, val_loss)
