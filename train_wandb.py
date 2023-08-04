@@ -23,13 +23,13 @@ def wandb_init():
 
     parameters_dict = {
         'cascade': {
-            'values': [1, 5, 9]
+            'values': [1]
         },
         'chans': {
-            'values': [3, 9, 15]
+            'values': [9]
         },
         'sens_chans': {
-            'values': [2, 4, 6]
+            'values': [4]
         }
     }
 

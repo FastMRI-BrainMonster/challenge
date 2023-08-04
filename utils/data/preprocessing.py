@@ -27,7 +27,10 @@ def get_h5_mask(target):
 for ftype in ['train', 'val', 'leaderboard/acc4', 'leaderboard/acc8']:
     imagepath = os.path.join('/Data', ftype, 'image')
     kspacepath = os.path.join('/Data', ftype, 'kspace')
-    savepath = os.path.join('/root/brain_mask', ftype)
+    savepath = os.path.join('/home/yxxshin/Desktop/FastMRI/challenge/brain_mask', ftype)
+    
+    if not os.path.exists(savepath):
+        os.makedirs(savepath)
     
     h5list = os.listdir(kspacepath)
     
