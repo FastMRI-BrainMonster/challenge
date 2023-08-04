@@ -29,6 +29,9 @@ for ftype in ['train', 'val', 'leaderboard/acc4', 'leaderboard/acc8']:
     kspacepath = os.path.join('/Data', ftype, 'kspace')
     savepath = os.path.join('/root/brain_mask', ftype)
     
+    if not os.path.exists(savepath):
+        os.makedirs(savepath)
+    
     h5list = os.listdir(kspacepath)
     
     h5list.sort()
