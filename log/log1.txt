@@ -1,0 +1,20 @@
+Current cuda device:  0
+Traceback (most recent call last):
+  File "train.py", line 58, in <module>
+    train(args)
+  File "/root/challenge/utils/learning/train_part.py", line 147, in train
+    model.to(device=device)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1118, in to
+    return self._apply(convert)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 770, in _apply
+    module._apply(fn)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 770, in _apply
+    module._apply(fn)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 770, in _apply
+    module._apply(fn)
+  [Previous line repeated 4 more times]
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 793, in _apply
+    param_applied = fn(param)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1116, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+KeyboardInterrupt

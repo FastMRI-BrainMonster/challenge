@@ -57,7 +57,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
             start_iter = time.perf_counter()
     total_loss = total_loss / len_loader
     
-    wandb.log({"Train_Loss": total_loss})
+    #wandb.log({"Train_Loss": total_loss})
     return total_loss, time.perf_counter() - start_epoch
 
 
@@ -164,7 +164,8 @@ def train(args):
 
     loss_type = SSIMLoss().to(device=device)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
-
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer=optimizer, lr_lambda=lambda epoch: 0.95 ** epoch,last_epoch=-1,verbose=False)
+    
     best_val_loss = 1.
     start_epoch = 0
 
@@ -182,6 +183,7 @@ def train(args):
         print(f'Epoch #{epoch:2d} ............... {args.net_name} ...............')
         model.update_epoch(epoch)
         train_loss, train_time = train_epoch(args, epoch, model, train_loader, optimizer, loss_type)
+        scheduler.step()
         val_loss, num_subjects, reconstructions, targets, inputs, val_time = validate(args, model, val_loader)
         
         val_loss_log = np.append(val_loss_log, np.array([[epoch, val_loss]]), axis=0)
@@ -195,7 +197,7 @@ def train(args):
 
 
         val_loss = val_loss / num_subjects
-        wandb.log({"Valid_Loss": val_loss})
+        #wandb.log({"Valid_Loss": val_loss})
 
         is_new_best = val_loss < best_val_loss
         best_val_loss = min(best_val_loss, val_loss)

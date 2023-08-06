@@ -1,0 +1,88 @@
+/root/challenge/utils/model/varnet.py:288: UserWarning: where received a uint8 condition tensor. This behavior is deprecated and will be removed in a future version of PyTorch. Use a boolean condition instead. (Triggered internally at /opt/pytorch/pytorch/aten/src/ATen/native/TensorCompare.cpp:491.)
+  soft_dc = torch.where(mask, current_kspace - ref_kspace, zero) * self.dc_weight
+Current cuda device:  0
+Epoch # 0 ............... test_varnet ...............
+Epoch = [  0/  5] Iter = [   0/5674] Loss = 0.1412 Time = 3.4104s
+Epoch = [  0/  5] Iter = [ 500/5674] Loss = 0.07196 Time = 701.5963s
+Epoch = [  0/  5] Iter = [1000/5674] Loss = 0.04583 Time = 690.4835s
+Epoch = [  0/  5] Iter = [1500/5674] Loss = 0.02479 Time = 697.1296s
+Epoch = [  0/  5] Iter = [2000/5674] Loss = 0.02671 Time = 699.4961s
+Epoch = [  0/  5] Iter = [2500/5674] Loss = 0.02398 Time = 703.8774s
+Epoch = [  0/  5] Iter = [3000/5674] Loss = 0.04458 Time = 697.9679s
+Epoch = [  0/  5] Iter = [3500/5674] Loss = 0.03708 Time = 694.4894s
+Epoch = [  0/  5] Iter = [4000/5674] Loss = 0.01775 Time = 700.6017s
+Epoch = [  0/  5] Iter = [4500/5674] Loss = 0.03006 Time = 711.8890s
+Epoch = [  0/  5] Iter = [5000/5674] Loss = 0.01599 Time = 714.9224s
+Epoch = [  0/  5] Iter = [5500/5674] Loss = 0.03358 Time = 692.8200s
+loss file saved! ../result/test_varnet/val_loss_log
+Epoch = [   0/   5] TrainLoss = 0.03408 ValLoss = 0.0282 TrainTime = 7947.2441s ValTime = 529.7643s
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@NewRecord@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ForwardTime = 7.6641s
+Epoch # 1 ............... test_varnet ...............
+Epoch = [  1/  5] Iter = [   0/5674] Loss = 0.08098 Time = 1.6173s
+Epoch = [  1/  5] Iter = [ 500/5674] Loss = 0.01858 Time = 760.1580s
+Epoch = [  1/  5] Iter = [1000/5674] Loss = 0.02856 Time = 756.7516s
+Epoch = [  1/  5] Iter = [1500/5674] Loss = 0.01163 Time = 751.9635s
+Epoch = [  1/  5] Iter = [2000/5674] Loss = 0.04185 Time = 750.0950s
+Epoch = [  1/  5] Iter = [2500/5674] Loss = 0.01352 Time = 747.7752s
+Epoch = [  1/  5] Iter = [3000/5674] Loss = 0.01267 Time = 733.6577s
+Epoch = [  1/  5] Iter = [3500/5674] Loss = 0.0299 Time = 739.4495s
+Epoch = [  1/  5] Iter = [4000/5674] Loss = 0.01802 Time = 737.4587s
+Epoch = [  1/  5] Iter = [4500/5674] Loss = 0.01803 Time = 745.3459s
+Epoch = [  1/  5] Iter = [5000/5674] Loss = 0.01556 Time = 746.5843s
+Epoch = [  1/  5] Iter = [5500/5674] Loss = 0.03169 Time = 741.4233s
+loss file saved! ../result/test_varnet/val_loss_log
+Epoch = [   1/   5] TrainLoss = 0.02317 ValLoss = 0.02623 TrainTime = 8471.5688s ValTime = 525.6201s
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@NewRecord@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ForwardTime = 7.7032s
+Epoch # 2 ............... test_varnet ...............
+Epoch = [  2/  5] Iter = [   0/5674] Loss = 0.02146 Time = 1.7021s
+Epoch = [  2/  5] Iter = [ 500/5674] Loss = 0.01963 Time = 753.9790s
+Epoch = [  2/  5] Iter = [1000/5674] Loss = 0.02138 Time = 747.9772s
+Epoch = [  2/  5] Iter = [1500/5674] Loss = 0.007795 Time = 748.0255s
+Epoch = [  2/  5] Iter = [2000/5674] Loss = 0.005242 Time = 747.8872s
+Epoch = [  2/  5] Iter = [2500/5674] Loss = 0.0246 Time = 753.4687s
+Epoch = [  2/  5] Iter = [3000/5674] Loss = 0.008105 Time = 765.6634s
+Epoch = [  2/  5] Iter = [3500/5674] Loss = 0.01772 Time = 758.6703s
+Epoch = [  2/  5] Iter = [4000/5674] Loss = 0.01258 Time = 746.0817s
+Epoch = [  2/  5] Iter = [4500/5674] Loss = 0.0246 Time = 753.6110s
+Epoch = [  2/  5] Iter = [5000/5674] Loss = 0.02609 Time = 756.1136s
+Epoch = [  2/  5] Iter = [5500/5674] Loss = 0.009386 Time = 750.6657s
+loss file saved! ../result/test_varnet/val_loss_log
+Epoch = [   2/   5] TrainLoss = 0.01926 ValLoss = 0.0237 TrainTime = 8543.6578s ValTime = 521.8479s
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@NewRecord@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ForwardTime = 7.7456s
+Epoch # 3 ............... test_varnet ...............
+Epoch = [  3/  5] Iter = [   0/5674] Loss = 0.01764 Time = 1.5450s
+Epoch = [  3/  5] Iter = [ 500/5674] Loss = 0.0331 Time = 763.6111s
+Epoch = [  3/  5] Iter = [1000/5674] Loss = 0.02675 Time = 744.2628s
+Epoch = [  3/  5] Iter = [1500/5674] Loss = 0.02644 Time = 762.0105s
+Epoch = [  3/  5] Iter = [2000/5674] Loss = 0.006223 Time = 752.4758s
+Epoch = [  3/  5] Iter = [2500/5674] Loss = 0.01267 Time = 753.9384s
+Epoch = [  3/  5] Iter = [3000/5674] Loss = 0.02228 Time = 749.2325s
+Epoch = [  3/  5] Iter = [3500/5674] Loss = 0.0141 Time = 744.8642s
+Epoch = [  3/  5] Iter = [4000/5674] Loss = 0.008076 Time = 746.2860s
+Epoch = [  3/  5] Iter = [4500/5674] Loss = 0.02688 Time = 757.0329s
+Epoch = [  3/  5] Iter = [5000/5674] Loss = 0.01085 Time = 762.0130s
+Epoch = [  3/  5] Iter = [5500/5674] Loss = 0.02611 Time = 749.3565s
+loss file saved! ../result/test_varnet/val_loss_log
+Epoch = [   3/   5] TrainLoss = 0.01759 ValLoss = 0.02279 TrainTime = 8548.9689s ValTime = 521.9020s
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@NewRecord@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ForwardTime = 7.8371s
+Epoch # 4 ............... test_varnet ...............
+Epoch = [  4/  5] Iter = [   0/5674] Loss = 0.03143 Time = 1.8339s
+Epoch = [  4/  5] Iter = [ 500/5674] Loss = 0.02104 Time = 755.4586s
+Epoch = [  4/  5] Iter = [1000/5674] Loss = 0.01837 Time = 751.3164s
+Epoch = [  4/  5] Iter = [1500/5674] Loss = 0.01034 Time = 755.2273s
+Epoch = [  4/  5] Iter = [2000/5674] Loss = 0.007697 Time = 760.1431s
+Epoch = [  4/  5] Iter = [2500/5674] Loss = 0.01016 Time = 747.9860s
+Epoch = [  4/  5] Iter = [3000/5674] Loss = 0.0294 Time = 746.8870s
+Epoch = [  4/  5] Iter = [3500/5674] Loss = 0.01031 Time = 745.2331s
+Epoch = [  4/  5] Iter = [4000/5674] Loss = 0.01467 Time = 751.9057s
+Epoch = [  4/  5] Iter = [4500/5674] Loss = 0.01116 Time = 751.9237s
+Epoch = [  4/  5] Iter = [5000/5674] Loss = 0.009017 Time = 752.0399s
+Epoch = [  4/  5] Iter = [5500/5674] Loss = 0.0146 Time = 752.7325s
+loss file saved! ../result/test_varnet/val_loss_log
+Epoch = [   4/   5] TrainLoss = 0.01656 ValLoss = 0.02209 TrainTime = 8531.6846s ValTime = 522.7962s
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@NewRecord@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ForwardTime = 7.8359s

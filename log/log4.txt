@@ -1,0 +1,83 @@
+/root/challenge/utils/model/varnet.py:288: UserWarning: where received a uint8 condition tensor. This behavior is deprecated and will be removed in a future version of PyTorch. Use a boolean condition instead. (Triggered internally at /opt/pytorch/pytorch/aten/src/ATen/native/TensorCompare.cpp:491.)
+  soft_dc = torch.where(mask, current_kspace - ref_kspace, zero) * self.dc_weight
+Current cuda device:  0
+Epoch # 0 ............... test_varnet ...............
+Epoch = [  0/  5] Iter = [   0/5674] Loss = 0.09151 Time = 2.6849s
+Epoch = [  0/  5] Iter = [ 500/5674] Loss = 0.06468 Time = 415.2946s
+Epoch = [  0/  5] Iter = [1000/5674] Loss = 0.06331 Time = 408.5237s
+Epoch = [  0/  5] Iter = [1500/5674] Loss = 0.02366 Time = 410.8610s
+Epoch = [  0/  5] Iter = [2000/5674] Loss = 0.02105 Time = 405.0339s
+Epoch = [  0/  5] Iter = [2500/5674] Loss = 0.02937 Time = 410.5564s
+Epoch = [  0/  5] Iter = [3000/5674] Loss = 0.02917 Time = 409.7882s
+Epoch = [  0/  5] Iter = [3500/5674] Loss = 0.02636 Time = 412.7104s
+Epoch = [  0/  5] Iter = [4000/5674] Loss = 0.0494 Time = 413.8638s
+Epoch = [  0/  5] Iter = [4500/5674] Loss = 0.04225 Time = 416.2272s
+Epoch = [  0/  5] Iter = [5000/5674] Loss = 0.05289 Time = 424.7547s
+Epoch = [  0/  5] Iter = [5500/5674] Loss = 0.04898 Time = 411.1128s
+loss file saved! ../result/test_varnet/val_loss_log
+Epoch = [   0/   5] TrainLoss = 0.04268 ValLoss = 0.03655 TrainTime = 4684.2389s ValTime = 364.0037s
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@NewRecord@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ForwardTime = 7.6960s
+Epoch # 1 ............... test_varnet ...............
+Epoch = [  1/  5] Iter = [   0/5674] Loss = 0.04954 Time = 1.0476s
+Epoch = [  1/  5] Iter = [ 500/5674] Loss = 0.02454 Time = 467.8188s
+Epoch = [  1/  5] Iter = [1000/5674] Loss = 0.03352 Time = 466.7277s
+Epoch = [  1/  5] Iter = [1500/5674] Loss = 0.02686 Time = 465.3665s
+Epoch = [  1/  5] Iter = [2000/5674] Loss = 0.01679 Time = 456.4511s
+Epoch = [  1/  5] Iter = [2500/5674] Loss = 0.05276 Time = 459.7507s
+Epoch = [  1/  5] Iter = [3000/5674] Loss = 0.02102 Time = 458.5892s
+Epoch = [  1/  5] Iter = [3500/5674] Loss = 0.03696 Time = 454.6781s
+Epoch = [  1/  5] Iter = [4000/5674] Loss = 0.02392 Time = 454.3580s
+Epoch = [  1/  5] Iter = [4500/5674] Loss = 0.02539 Time = 460.7272s
+Epoch = [  1/  5] Iter = [5000/5674] Loss = 0.02923 Time = 447.2678s
+Epoch = [  1/  5] Iter = [5500/5674] Loss = 0.0195 Time = 463.6826s
+loss file saved! ../result/test_varnet/val_loss_log
+Epoch = [   1/   5] TrainLoss = 0.02917 ValLoss = 0.03424 TrainTime = 5213.6742s ValTime = 358.3306s
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@NewRecord@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ForwardTime = 7.6949s
+Epoch # 2 ............... test_varnet ...............
+Epoch = [  2/  5] Iter = [   0/5674] Loss = 0.02447 Time = 1.0347s
+Epoch = [  2/  5] Iter = [ 500/5674] Loss = 0.04128 Time = 461.2490s
+Epoch = [  2/  5] Iter = [1000/5674] Loss = 0.02554 Time = 468.6004s
+Epoch = [  2/  5] Iter = [1500/5674] Loss = 0.0311 Time = 461.7027s
+Epoch = [  2/  5] Iter = [2000/5674] Loss = 0.04017 Time = 462.2079s
+Epoch = [  2/  5] Iter = [2500/5674] Loss = 0.04164 Time = 455.3019s
+Epoch = [  2/  5] Iter = [3000/5674] Loss = 0.01775 Time = 470.3042s
+Epoch = [  2/  5] Iter = [3500/5674] Loss = 0.04743 Time = 472.8855s
+Epoch = [  2/  5] Iter = [4000/5674] Loss = 0.02147 Time = 465.5745s
+Epoch = [  2/  5] Iter = [4500/5674] Loss = 0.02134 Time = 464.0456s
+Epoch = [  2/  5] Iter = [5000/5674] Loss = 0.01436 Time = 462.5723s
+Epoch = [  2/  5] Iter = [5500/5674] Loss = 0.02622 Time = 461.3550s
+loss file saved! ../result/test_varnet/val_loss_log
+Epoch = [   2/   5] TrainLoss = 0.02546 ValLoss = 0.03373 TrainTime = 5268.2982s ValTime = 354.5705s
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@NewRecord@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ForwardTime = 7.7917s
+Epoch # 3 ............... test_varnet ...............
+Epoch = [  3/  5] Iter = [   0/5674] Loss = 0.03751 Time = 0.9751s
+Epoch = [  3/  5] Iter = [ 500/5674] Loss = 0.01845 Time = 461.0686s
+Epoch = [  3/  5] Iter = [1000/5674] Loss = 0.03367 Time = 466.2468s
+Epoch = [  3/  5] Iter = [1500/5674] Loss = 0.04044 Time = 468.3846s
+Epoch = [  3/  5] Iter = [2000/5674] Loss = 0.0211 Time = 480.0670s
+Epoch = [  3/  5] Iter = [2500/5674] Loss = 0.0226 Time = 459.3694s
+Traceback (most recent call last):
+  File "train.py", line 58, in <module>
+    train(args)
+  File "/root/challenge/utils/learning/train_part.py", line 184, in train
+    train_loss, train_time = train_epoch(args, epoch, model, train_loader, optimizer, loss_type)
+  File "/root/challenge/utils/learning/train_part.py", line 29, in train_epoch
+    for iter, data in enumerate(data_loader):
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/data/dataloader.py", line 630, in __next__
+    data = self._next_data()
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/data/dataloader.py", line 673, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/data/_utils/fetch.py", line 58, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/data/_utils/fetch.py", line 58, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/root/challenge/utils/data/load_data.py", line 52, in __getitem__
+    input = hf[self.input_key][dataslice]
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "/usr/local/lib/python3.8/dist-packages/h5py/_hl/dataset.py", line 841, in __getitem__
+    self.id.read(mspace, fspace, arr, mtype, dxpl=self._dxpl)
+KeyboardInterrupt
