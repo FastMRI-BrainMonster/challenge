@@ -3,3 +3,4 @@ __pycache__/
 brain_mask/
 wandb/
 *.sh
+log
