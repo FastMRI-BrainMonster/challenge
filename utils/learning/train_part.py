@@ -57,7 +57,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
             start_iter = time.perf_counter()
     total_loss = total_loss / len_loader
     
-    wandb.log({"Train_Loss": total_loss})
+    #wandb.log({"Train_Loss": total_loss})
     return total_loss, time.perf_counter() - start_epoch
 
 
@@ -195,7 +195,7 @@ def train(args):
 
 
         val_loss = val_loss / num_subjects
-        wandb.log({"Valid_Loss": val_loss})
+        #wandb.log({"Valid_Loss": val_loss})
 
         is_new_best = val_loss < best_val_loss
         best_val_loss = min(best_val_loss, val_loss)
