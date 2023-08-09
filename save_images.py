@@ -1,10 +1,22 @@
 import argparse
 from pathlib import Path
 import os, sys
+import numpy as np
+import torch
+
 if os.getcwd() + '/utils/model/' not in sys.path:
     sys.path.insert(1, os.getcwd() + '/utils/model/')
-from utils.learning.test_part import test
     
+from utils.model.varnet import VarNet
+from utils.data.load_data import create_data_loaders
+    
+from utils.learning.test_part import test
+
+if os.getcwd() + '/utils/common/' not in sys.path:
+    sys.path.insert(1, os.getcwd() + '/utils/common/')
+    
+from utils.common.utils import seed_fix
+
 def parse():
     parser = argparse.ArgumentParser(description='Save images for training ResUNet on FastMRI challenge Images',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -48,7 +60,7 @@ if __name__ == '__main__':
     args = parse()
     args.exp_dir = '../result' / args.net_name / 'checkpoints'
     
-    # acc4
     args.forward_dir = '../Data_ResUNet/'
+    
     save_images(args)
     
