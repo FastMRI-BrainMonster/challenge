@@ -5,6 +5,7 @@ import numpy as np
 import os
 import cv2
 import tqdm
+from PIL import Image, ImageFilter
 
 def get_image_mask(target):
     mask = np.zeros(target.shape)
@@ -13,6 +14,12 @@ def get_image_mask(target):
     mask = cv2.erode(mask, kernel, iterations=1)
     mask = cv2.dilate(mask, kernel, iterations=15)
     mask = cv2.erode(mask, kernel, iterations=14)
+
+    mask_img = Image.fromarray(np.uint8(mask*255))
+    mask_img = mask_img.filter(ImageFilter.ModeFilter(size=13))
+    mask = np.array(mask_img)
+    mask = mask / 255
+
     mask = np.array(mask, dtype = np.float32)
     return np.array(mask)
 
