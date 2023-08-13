@@ -11,14 +11,15 @@ def test(args, model, data_loader):
     reconstructions = defaultdict(dict)
     
     with torch.no_grad():
-        for (mask, kspace, _, _, fnames, slices) in data_loader:
+        for i, (mask, kspace, _, _, fnames, slices) in enumerate(data_loader):
+            if i % 100 == 0:
+                print(f'Saved {i} images')
             kspace = kspace.cuda(non_blocking=True)
             mask = mask.cuda(non_blocking=True)
             output = model(kspace, mask)
 
             for i in range(output.shape[0]):
                 reconstructions[fnames[i]][int(slices[i])] = output[i].cpu().numpy()
-
     for fname in reconstructions:
         reconstructions[fname] = np.stack(
             [out for _, out in sorted(reconstructions[fname].items())]
