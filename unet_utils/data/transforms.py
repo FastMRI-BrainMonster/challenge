@@ -27,5 +27,4 @@ class DataTransform:
             maximum = -1
 
         input = to_tensor(input)
-        
         return input, target, maximum, fname, slice
