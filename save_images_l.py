@@ -30,13 +30,13 @@ if __name__ == '__main__':
     
     # acc4
     args.data_path = args.path_data / "acc4"
-    args.forward_dir = '../Data_ResUNet/leaderboard/acc4'
+    args.forward_dir = Path('../Data_ResUNet/leaderboard/acc4')
     print(args.forward_dir)
     forward(args)
     
     # acc8
     args.data_path = args.path_data / "acc8"
-    args.forward_dir = '../Data_ResUNet/leaderboard/acc8'
+    args.forward_dir = Path('../Data_ResUNet/leaderboard/acc8')
     print(args.forward_dir)
     forward(args)
     

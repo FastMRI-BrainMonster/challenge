@@ -66,8 +66,8 @@ def validate(args, model, data_loader):
     with torch.no_grad():
         for iter, data in enumerate(data_loader):
             input_, target, maximum, fname, slices = data
-            input_ = input_.cuda(non_blocking=True)
-            output = model(input_)
+            input_ = input_.cuda(non_blocking=True).unsqueeze(0)
+            output = model(input_).squeeze(0)
             target = target.cuda(non_blocking=True)
 
             for i in range(output.shape[0]):
