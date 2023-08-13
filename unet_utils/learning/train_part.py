@@ -24,17 +24,18 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     len_loader = len(data_loader)
     total_loss = 0.
     for iter, data in enumerate(data_loader):
-        input_, target, maximum, fname, _ = data
+        input_, target, maximum, fname, slices = data
         # [ADD] by yxxshin (2023.07.22)
         brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
-        brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
+        brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
         
         input_ = input_.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
         maximum = maximum.cuda(non_blocking=True)
         
-        output = model(input_)
+        input_ = input_.unsqueeze(0)
+        output = model(input_).squeeze(0)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
         # loss = loss_type(output, target, maximum)
         optimizer.zero_grad()
