@@ -9,7 +9,7 @@ if os.getcwd() + '/utils/model/' not in sys.path:
     
 from utils.model.varnet import VarNet
 from utils.data.load_data import create_data_loaders
-    
+from utils.common.utils import save_reconstructions
 from utils.learning.test_part import test
 
 if os.getcwd() + '/utils/common/' not in sys.path:
@@ -51,10 +51,10 @@ def save_images(args):
     val_loader = create_data_loaders(data_path = args.data_path_val, args = args, isforward=True)
     
     reconstructions, inputs = test(args, model, train_loader)
-    save_reconstructions(reconstructions, args.forward_dir+'train/', inputs=inputs)
+    save_reconstructions(reconstructions, Path(args.forward_dir+'train/'),inputs=inputs)
 
     reconstructions, inputs = test(args, model, val_loader)
-    save_reconstructions(reconstructions, args.forward_dir+'val/', inputs=inputs)
+    save_reconstructions(reconstructions, Path(args.forward_dir+'val'), inputs=inputs)
 
 if __name__ == '__main__':
     args = parse()
