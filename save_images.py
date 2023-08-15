@@ -31,6 +31,7 @@ def parse():
     parser.add_argument("--input_key", type=str, default='kspace', help='Name of input key')
     parser.add_argument('-t', '--data-path-train', type=Path, default='/Data/train/', help='Directory of train data')
     parser.add_argument('-v', '--data-path-val', type=Path, default='/Data/val/', help='Directory of validation data')
+    parser.add_argument('--num_workers', type=int, default=4, help='num_workers')
 
     args = parser.parse_args()
     return args

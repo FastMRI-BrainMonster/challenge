@@ -80,6 +80,7 @@ def create_data_loaders(data_path, args, shuffle=False, isforward=False, augment
     data_loader = DataLoader(
         dataset=data_storage,
         batch_size=args.batch_size,
+        num_workers=args.num_workers,
         shuffle=shuffle,
     )
     return data_loader

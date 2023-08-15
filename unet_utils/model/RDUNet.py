@@ -154,7 +154,7 @@ class RDUNet(nn.Module):
         self.block_0_2 = DenoisingBlock(filters_0, filters_0 // 2, filters_0)
         self.block_0_3 = DenoisingBlock(filters_0, filters_0 // 2, filters_0)
 
-        self.output_block = OutputBlock(filters_0, channels)
+        self.output_block = OutputBlock(filters_0, 1)
 
     def forward(self, inputs):
         out_0 = self.input_block(inputs)    # Level 0
@@ -184,5 +184,6 @@ class RDUNet(nn.Module):
         out_6 = self.up_0([out_5, out_0])   # Level 0
         out_6 = self.block_0_2(out_6)
         out_6 = self.block_0_3(out_6)
-
-        return self.output_block(out_6) + inputs
+        
+        out = self.output_block(out_6) + inputs.mean(dim=1).unsqueeze(0)
+        return out

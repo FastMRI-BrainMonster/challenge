@@ -7,6 +7,7 @@ import cv2
 import tqdm
 from PIL import Image, ImageFilter
 
+count = 0
 def get_image_mask(target):
     mask = np.zeros(target.shape)
     mask[target>5e-5] = 1
@@ -19,6 +20,10 @@ def get_image_mask(target):
     mask_img = mask_img.filter(ImageFilter.ModeFilter(size=13))
     mask = np.array(mask_img)
     mask = mask / 255
+    global count
+    if mask.sum() == 0:
+        count = count +1
+        #print(count)
 
     mask = np.array(mask, dtype = np.float32)
     return np.array(mask)

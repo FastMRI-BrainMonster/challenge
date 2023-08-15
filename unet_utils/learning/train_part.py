@@ -24,17 +24,21 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     len_loader = len(data_loader)
     total_loss = 0.
     for iter, data in enumerate(data_loader):
+#         if iter > 5:
+#             break
         input_, target, maximum, fname, slices = data
         # [ADD] by yxxshin (2023.07.22)
         brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
-        
+
         input_ = input_.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
         maximum = maximum.cuda(non_blocking=True)
         
         input_ = input_.unsqueeze(0)
+        if args.is_grappa == 'y':
+            input_ = input_.squeeze(0)
         output = model(input_).squeeze(0)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
         # loss = loss_type(output, target, maximum)
@@ -65,12 +69,17 @@ def validate(args, model, data_loader):
 
     with torch.no_grad():
         for iter, data in enumerate(data_loader):
+            input_, target, maximum, fnames, slices = data
+            input_ = input_.cuda(non_blocking=True).unsqueeze(0)
+            if args.is_grappa == 'y':
+                input_ = input_.squeeze(0)
             input_, target, maximum, fname, slices = data
             input_ = input_.cuda(non_blocking=True).unsqueeze(0)
             output = model(input_).squeeze(0)
             target = target.cuda(non_blocking=True)
 
-            for i in range(output.shape[0]):
+            for i in range(1):
+            #only batch1 case?
                  # [ADD] by yxxshin (2023.07.30)
                 brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/val', fnames[i]), 'r')
                 brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
