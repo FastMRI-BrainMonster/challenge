@@ -37,7 +37,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
         maximum = maximum.cuda(non_blocking=True)
         
         input_ = input_.unsqueeze(0)
-        if args.is_grappa is 'y':
+        if args.is_grappa == 'y':
             input_ = input_.squeeze(0)
         output = model(input_).squeeze(0)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
@@ -73,7 +73,7 @@ def validate(args, model, data_loader):
 #                 break
             input_, target, maximum, fnames, slices = data
             input_ = input_.cuda(non_blocking=True).unsqueeze(0)
-            if args.is_grappa is 'y':
+            if args.is_grappa == 'y':
                 input_ = input_.squeeze(0)
             output = model(input_).squeeze(0)
             target = target.cuda(non_blocking=True)

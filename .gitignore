@@ -3,4 +3,4 @@ __pycache__/
 brain_mask/
 wandb/
 grappa/
-
+*.sh

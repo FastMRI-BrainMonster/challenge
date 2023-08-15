@@ -35,6 +35,8 @@ def parse():
     parser.add_argument('--is_grappa', type=str, default='y', help='image + grappa image')
     parser.add_argument('--grappa_path', type=str, default='/root/grappa', help='grappa path')
     parser.add_argument('--seed', type=int, default=430, help='Fix random seed')
+    parser.add_argument('--num_workers', type=int, default=4, help='num_workers')
+
     #[modified]
     return parser
 
