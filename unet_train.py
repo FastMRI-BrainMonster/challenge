@@ -32,6 +32,8 @@ def parse():
     parser.add_argument('--max-key', type=str, default='max', help='Name of max key in attributes')
     parser.add_argument('--input-key', type=str, default='reconstruction', help='Name of input key')
     parser.add_argument('--target-key', type=str, default='image_label', help='Name of target key')
+    parser.add_argument('--is_grappa', type=str, default='y', help='image + grappa image')
+    parser.add_argument('--grappa_path', type=str, default='/root/grappa', help='grappa path')
     parser.add_argument('--seed', type=int, default=430, help='Fix random seed')
     #[modified]
     return parser
@@ -50,7 +52,10 @@ if __name__ == '__main__':
     args.val_dir = '../result' / args.net_name / 'reconstructions_val'
     args.main_dir = '../result' / args.net_name / __file__
     args.val_loss_dir = '../result' / args.net_name
-
+    
+    if args.is_grappa == 'y':
+        args.chanels = 2
+    
     args.exp_dir.mkdir(parents=True, exist_ok=True)
     args.val_dir.mkdir(parents=True, exist_ok=True)
 
