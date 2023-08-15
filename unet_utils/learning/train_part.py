@@ -69,12 +69,12 @@ def validate(args, model, data_loader):
 
     with torch.no_grad():
         for iter, data in enumerate(data_loader):
-#             if iter > 5:
-#                 break
             input_, target, maximum, fnames, slices = data
             input_ = input_.cuda(non_blocking=True).unsqueeze(0)
             if args.is_grappa == 'y':
                 input_ = input_.squeeze(0)
+            input_, target, maximum, fname, slices = data
+            input_ = input_.cuda(non_blocking=True).unsqueeze(0)
             output = model(input_).squeeze(0)
             target = target.cuda(non_blocking=True)
 
