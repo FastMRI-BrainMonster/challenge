@@ -30,7 +30,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
         mask, kspace, target, maximum, fname, slices = data
 #         if iter > 5:
 #             break
-        
+     
         # [ADD] by yxxshin (2023.07.22)
         brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
