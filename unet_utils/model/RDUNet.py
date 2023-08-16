@@ -51,6 +51,9 @@ class UpsampleBlock(nn.Module):
 class InputBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(InputBlock, self).__init__()
+        self.norm_1 = nn.InstanceNorm2d(in_channels)
+        self.norm_2 = nn.InstanceNorm2d(out_channels)
+        
         self.conv_1 = nn.Conv2d(in_channels, out_channels, 3, padding=1)
         self.conv_2 = nn.Conv2d(out_channels, out_channels, 3, padding=1)
 
@@ -58,8 +61,8 @@ class InputBlock(nn.Module):
         self.actv_2 = nn.PReLU(out_channels)
 
     def forward(self, x):
-        x = self.actv_1(self.conv_1(x))
-        return self.actv_2(self.conv_2(x))
+        x = self.actv_1(self.conv_1(self.norm_1(x)))
+        return self.actv_2(self.conv_2(self.norm_2(x)))
 
 
 class OutputBlock(nn.Module):
@@ -155,9 +158,26 @@ class RDUNet(nn.Module):
         self.block_0_3 = DenoisingBlock(filters_0, filters_0 // 2, filters_0)
 
         self.output_block = OutputBlock(filters_0, 1)
+        self.ReLU = nn.ReLU()
+
+    def norm(self, x: torch.Tensor):
+        # group norm
+        b, c, h, w = x.shape
+        x = x.view(b, 2, c // 2 * h * w)
+
+        mean = x.mean(dim=2).view(b, c, 1, 1)
+        std = x.std(dim=2).view(b, c, 1, 1)
+
+        x = x.view(b, c, h, w)
+
+        return (x - mean) / std, mean, std
+
+    def unnorm(self, x: torch.Tensor, mean: torch.Tensor, std: torch.Tensor):
+        return x * std + mean
 
     def forward(self, inputs):
-        out_0 = self.input_block(inputs)    # Level 0
+        out_0, mean, std = self.norm(inputs)
+        out_0 = self.input_block(out_0)    # Level 0
         out_0 = self.block_0_0(out_0)
         out_0 = self.block_0_1(out_0)
 
@@ -186,4 +206,6 @@ class RDUNet(nn.Module):
         out_6 = self.block_0_3(out_6)
         
         out = self.output_block(out_6) + inputs.mean(dim=1).unsqueeze(0)
+        out = out.mean(dim=0)
         return out
+        
