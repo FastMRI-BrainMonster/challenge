@@ -16,8 +16,7 @@ from utils.data.data_augment import DataAugmentor
 from unet_utils.data.load_data import create_data_loaders
 from utils.common.utils import save_reconstructions, ssim_loss
 from utils.common.loss_function import SSIMLoss
-from utils.common.loss_function import PSNR
-from unet_utils.model.RDUNet import RDUNet
+from unet_utils.model.ResUnet import ResUnet
 
 def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     model.train()
@@ -25,24 +24,29 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     len_loader = len(data_loader)
     total_loss = 0.
     for iter, data in enumerate(data_loader):
-        if iter > 0:
-            break
+#         if iter > 0:
+#             break
         input_, target, maximum, fname, slices = data
         # [ADD] by yxxshin (2023.07.22)
         brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
 
-        input_ = input_.cuda(non_blocking=True)
-        target = target.cuda(non_blocking=True)
-        maximum = maximum.cuda(non_blocking=True)
-        
         input_ = input_.unsqueeze(0)
         if args.is_grappa == 'y':
             input_ = input_.squeeze(0)
+        input_ = input_.cuda(non_blocking=True)
+        target = target.cuda(non_blocking=True)
+        maximum = maximum.cuda(non_blocking=True)
+
         output = model(input_)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
-        #loss = loss_type(output, target, maximum)
+#         for i, (name, child) in enumerate(model.named_children()):
+#             if name == 'output_layer':
+#                 for param in child.parameters():
+#                     print(param)
+        # loss = loss_type(output, target, maximum)
+#         import pdb; pdb.set_trace()
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -57,7 +61,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
             )
             start_iter = time.perf_counter()
     total_loss = total_loss / len_loader
-    
+
     #wandb.log({"Train_Loss": total_loss})
     return total_loss, time.perf_counter() - start_epoch
 
@@ -70,8 +74,8 @@ def validate(args, model, data_loader):
 
     with torch.no_grad():
         for iter, data in enumerate(data_loader):
-            if iter > 0:
-                break
+#             if iter > 0:
+#                 break
             input_, target, maximum, fnames, slices = data
             input_ = input_.cuda(non_blocking=True).unsqueeze(0)
             if args.is_grappa == 'y':
@@ -85,7 +89,7 @@ def validate(args, model, data_loader):
                 brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/val', fnames[i]), 'r')
                 brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
                 brain_mask = brain_mask.cuda(non_blocking=True)
-                
+
                 output[i] = output[i] * brain_mask[slices[0]]
                 target[i] = target[i] * brain_mask[slices[0]]
 
@@ -140,17 +144,16 @@ def download_model(url, fname):
             fh.write(chunk)
 
 
-        
+
 def train(args):
     device = torch.device(f'cuda:{args.GPU_NUM}' if torch.cuda.is_available() else 'cpu')
     torch.cuda.set_device(device)
     print('Current cuda device: ', torch.cuda.current_device())
 
-    model = RDUNet(args)
+    model = ResUnet(args.chanels)
     model.to(device=device)
 
-    #loss_type = SSIMLoss().to(device=device)
-    loss_type = PSNR().to(device=device)
+    loss_type = SSIMLoss().to(device=device)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
 
     best_val_loss = 1.
@@ -164,7 +167,7 @@ def train(args):
         print(f'Epoch #{epoch:2d} ............... {args.net_name} ...............')
         train_loss, train_time = train_epoch(args, epoch, model, train_loader, optimizer, loss_type)
         val_loss, num_subjects, reconstructions, targets, inputs, val_time = validate(args, model, val_loader)
-        
+
         val_loss_log = np.append(val_loss_log, np.array([[epoch, val_loss]]), axis=0)
         file_path = os.path.join(args.val_loss_dir, "val_loss_log")
         np.save(file_path, val_loss_log)

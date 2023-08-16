@@ -52,3 +52,32 @@ class SSIMLoss(nn.Module):
         S = (A1 * A2) / D
 
         return 1 - S.mean()
+
+
+class PSNR(nn.Module):
+    r"""
+    Evaluates the PSNR metric in a tensor.
+    It can return a result with different reduction methods.
+    Args:
+        data_range (int, float): Range of the input images.
+        reduction (string): Specifies the reduction to apply to the output:
+            ``'none'`` | ``'mean'`` | ``'sum'``. ``'none'``: no reduction will be applied,
+            ``'mean'``: the sum of the output will be divided by the number of
+            elements in the output, ``'sum'``: the output will be summed.
+        eps (float): Epsilon value to avoid division by zero.
+    """
+    def __init__(self, reduction='none', eps=1e-8):
+        super().__init__()
+        self.reduction = reduction
+        self.eps = eps
+
+    def __call__(self, outputs, targets, data_range):
+        mse = torch.mean((outputs - targets) ** 2., dim=(1, 2))
+        psnr = 10. * torch.log10((data_range ** 2.) / (mse + self.eps))
+
+        if self.reduction == 'mean':
+            return psnr.mean()
+        if self.reduction == 'sum':
+            return psnr.sum()
+
+        return psnr
