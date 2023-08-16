@@ -16,6 +16,7 @@ from utils.data.data_augment import DataAugmentor
 from unet_utils.data.load_data import create_data_loaders
 from utils.common.utils import save_reconstructions, ssim_loss
 from utils.common.loss_function import SSIMLoss
+from utils.common.loss_function import PSNR
 from unet_utils.model.RDUNet import RDUNet
 
 def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
@@ -24,29 +25,30 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     len_loader = len(data_loader)
     total_loss = 0.
     for iter, data in enumerate(data_loader):
-#         if iter > 5:
-#             break
+        if iter > 0:
+            break
         input_, target, maximum, fname, slices = data
         # [ADD] by yxxshin (2023.07.22)
         brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
-
+        
         input_ = input_.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
         maximum = maximum.cuda(non_blocking=True)
-        
+ 
         input_ = input_.unsqueeze(0)
         if args.is_grappa == 'y':
             input_ = input_.squeeze(0)
-        output = model(input_).squeeze(0)
+        output = model(input_)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
-        # loss = loss_type(output, target, maximum)
+        #loss = loss_type(output, target, maximum)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
-
+#         import pdb; pdb.set_trace()
+  
         if iter % args.report_interval == 0:
             print(
                 f'Epoch = [{epoch:3d}/{args.num_epochs:3d}] '
@@ -69,13 +71,13 @@ def validate(args, model, data_loader):
 
     with torch.no_grad():
         for iter, data in enumerate(data_loader):
-#             if iter > 5:
-#                 break
+            if iter > 0:
+                break
             input_, target, maximum, fnames, slices = data
             input_ = input_.cuda(non_blocking=True).unsqueeze(0)
             if args.is_grappa == 'y':
                 input_ = input_.squeeze(0)
-            output = model(input_).squeeze(0)
+            output = model(input_)
             target = target.cuda(non_blocking=True)
 
             for i in range(1):
@@ -148,13 +150,15 @@ def train(args):
     model = RDUNet(args)
     model.to(device=device)
 
-    loss_type = SSIMLoss().to(device=device)
+    #loss_type = SSIMLoss().to(device=device)
+    loss_type = PSNR().to(device=device)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
 
     best_val_loss = 1.
     start_epoch = 0
 
-    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
+    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
+    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
     val_loader = create_data_loaders(data_path = args.data_path_val, args = args, mode='val')
     val_loss_log = np.empty((0, 2))
     for epoch in range(start_epoch, args.num_epochs):

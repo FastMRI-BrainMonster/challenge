@@ -10,16 +10,13 @@ import copy
 
 import h5py
 import os
-import wandb
 
 from collections import defaultdict
 from utils.data.data_augment import DataAugmentor
-from utils.data.load_data import create_data_loaders
+from unet_utils.data.load_data import create_data_loaders
 from utils.common.utils import save_reconstructions, ssim_loss
 from utils.common.loss_function import SSIMLoss
-from utils.model.varnet import VarNet
-
-import os
+from unet_utils.model.ResUnet import ResUnet
 
 def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     model.train()
@@ -27,28 +24,34 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     len_loader = len(data_loader)
     total_loss = 0.
     for iter, data in enumerate(data_loader):
-        mask, kspace, target, maximum, fname, slices = data
-#         if iter > 5:
+#         if iter > 0:
 #             break
-        
+        input_, target, maximum, fname, slices = data
         # [ADD] by yxxshin (2023.07.22)
         brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
         
-        mask = mask.cuda(non_blocking=True)
-        kspace = kspace.cuda(non_blocking=True)
+        input_ = input_.unsqueeze(0)
+        if args.is_grappa == 'y':
+            input_ = input_.squeeze(0)
+        input_ = input_.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
         maximum = maximum.cuda(non_blocking=True)
-
-        output = model(kspace, mask)
+ 
+        output = model(input_)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
+#         for i, (name, child) in enumerate(model.named_children()):
+#             if name == 'output_layer':
+#                 for param in child.parameters():
+#                     print(param)
         # loss = loss_type(output, target, maximum)
+#         import pdb; pdb.set_trace()
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
-
+  
         if iter % args.report_interval == 0:
             print(
                 f'Epoch = [{epoch:3d}/{args.num_epochs:3d}] '
@@ -73,14 +76,15 @@ def validate(args, model, data_loader):
         for iter, data in enumerate(data_loader):
 #             if iter > 0:
 #                 break
-
-            mask, kspace, target, _, fnames, slices = data
-            kspace = kspace.cuda(non_blocking=True)
-            mask = mask.cuda(non_blocking=True)
-            output = model(kspace, mask)
+            input_, target, maximum, fnames, slices = data
+            input_ = input_.cuda(non_blocking=True).unsqueeze(0)
+            if args.is_grappa == 'y':
+                input_ = input_.squeeze(0)
+            output = model(input_)
             target = target.cuda(non_blocking=True)
 
-            for i in range(output.shape[0]):
+            for i in range(1):
+            #only batch1 case?
                  # [ADD] by yxxshin (2023.07.30)
                 brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/val', fnames[i]), 'r')
                 brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
@@ -146,48 +150,22 @@ def train(args):
     torch.cuda.set_device(device)
     print('Current cuda device: ', torch.cuda.current_device())
 
-    model = VarNet(num_cascades=args.cascade, 
-                   chans=args.chans, 
-                   sens_chans=args.sens_chans)
+    model = ResUnet(args.chanels)
     model.to(device=device)
-
-    """
-    # using pretrained parameter
-    VARNET_FOLDER = "https://dl.fbaipublicfiles.com/fastMRI/trained_models/varnet/"
-    MODEL_FNAMES = "brain_leaderboard_state_dict.pt"
-    if not Path(MODEL_FNAMES).exists():
-        url_root = VARNET_FOLDER
-        download_model(url_root + MODEL_FNAMES, MODEL_FNAMES)
-    
-    pretrained = torch.load(MODEL_FNAMES)
-    pretrained_copy = copy.deepcopy(pretrained)
-    for layer in pretrained_copy.keys():
-        if layer.split('.',2)[1].isdigit() and (args.cascade <= int(layer.split('.',2)[1]) <=11):
-            del pretrained[layer]
-    model.load_state_dict(pretrained)
-    """
 
     loss_type = SSIMLoss().to(device=device)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
-    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer=optimizer, lr_lambda=lambda epoch: 0.95 ** epoch, last_epoch=-1, verbose=False)
+
     best_val_loss = 1.
     start_epoch = 0
 
-    # [add] data augmentation
-    current_epoch_fn = lambda: model.current_epoch
-    augmentor = DataAugmentor(args, current_epoch_fn)
-    # To do.. augmentation  + transform 
-    
-
-    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, shuffle=True, augmentor=augmentor)
-    val_loader = create_data_loaders(data_path = args.data_path_val, args = args)
-    
+    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
+    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
+    val_loader = create_data_loaders(data_path = args.data_path_val, args = args, mode='val')
     val_loss_log = np.empty((0, 2))
     for epoch in range(start_epoch, args.num_epochs):
         print(f'Epoch #{epoch:2d} ............... {args.net_name} ...............')
-        model.update_epoch(epoch)
         train_loss, train_time = train_epoch(args, epoch, model, train_loader, optimizer, loss_type)
-        scheduler.step()
         val_loss, num_subjects, reconstructions, targets, inputs, val_time = validate(args, model, val_loader)
         
         val_loss_log = np.append(val_loss_log, np.array([[epoch, val_loss]]), axis=0)
