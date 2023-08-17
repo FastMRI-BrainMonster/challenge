@@ -52,7 +52,7 @@ class InputBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(InputBlock, self).__init__()
         self.norm_1 = nn.InstanceNorm2d(in_channels)
-        self.norm_1 = nn.InstanceNorm2d(out_channels)
+        self.norm_2 = nn.InstanceNorm2d(out_channels)
         
         self.conv_1 = nn.Conv2d(in_channels, out_channels, 3, padding=1)
         self.conv_2 = nn.Conv2d(out_channels, out_channels, 3, padding=1)
@@ -62,7 +62,7 @@ class InputBlock(nn.Module):
 
     def forward(self, x):
         x = self.actv_1(self.conv_1(self.norm_1(x)))
-        return self.actv_2(self.conv_2(self.norm_1(x)))
+        return self.actv_2(self.conv_2(self.norm_2(x)))
 
 
 class OutputBlock(nn.Module):
@@ -91,18 +91,23 @@ class DenoisingBlock(nn.Module):
         self.actv_1 = nn.PReLU(inner_channels)
         self.actv_2 = nn.PReLU(inner_channels)
         self.actv_3 = nn.PReLU(out_channels)
-
+        
+        self.norm_0 = nn.InstanceNorm2d(inner_channels)
+        self.norm_1 = nn.InstanceNorm2d(inner_channels)
+        self.norm_2 = nn.InstanceNorm2d(inner_channels)
+        self.norm_3 = nn.InstanceNorm2d(out_channels)
+        
     def forward(self, x):
-        out_0 = self.actv_0(self.conv_0(x))
+        out_0 = self.actv_0(self.norm_0(self.conv_0(x)))
 
         out_0 = torch.cat([x, out_0], 1)
-        out_1 = self.actv_1(self.conv_1(out_0))
+        out_1 = self.actv_1(self.norm_1(self.conv_1(out_0)))
 
         out_1 = torch.cat([out_0, out_1], 1)
-        out_2 = self.actv_2(self.conv_2(out_1))
+        out_2 = self.actv_2(self.norm_2(self.conv_2(out_1)))
 
         out_2 = torch.cat([out_1, out_2], 1)
-        out_3 = self.actv_3(self.conv_3(out_2))
+        out_3 = self.actv_3(self.norm_3(self.conv_3(out_2)))
 
         return out_3 + x
 

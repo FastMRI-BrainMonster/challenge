@@ -4,7 +4,6 @@ import torch.nn as nn
 class ResidualConv(nn.Module):
     def __init__(self, input_dim, output_dim, stride, padding):
         super(ResidualConv, self).__init__()
-
         self.conv_block = nn.Sequential(
             nn.InstanceNorm2d(input_dim),
             nn.ReLU(),
@@ -13,6 +12,7 @@ class ResidualConv(nn.Module):
             ),
             nn.InstanceNorm2d(output_dim),
             nn.ReLU(),
+            nn.Dropout(p=0.25),
             nn.Conv2d(output_dim, output_dim, kernel_size=3, padding=1),
         )
         self.conv_skip = nn.Sequential(
@@ -38,7 +38,7 @@ class Upsample(nn.Module):
 class ResUnet(nn.Module):
     def __init__(self, channel, filters=[64, 128, 256, 512]):
         super(ResUnet, self).__init__()
-
+        
         self.input_layer = nn.Sequential(
             nn.Conv2d(channel, filters[0], kernel_size=3, padding=1),
             nn.InstanceNorm2d(filters[0]),
@@ -84,7 +84,7 @@ class ResUnet(nn.Module):
     
     def forward(self, x):
         # Encode
-        #x0, mean, std = self.norm(x)
+        x0, mean, std = self.norm(x)
         x1 = self.input_layer(x) + self.input_skip(x)
         x2 = self.residual_conv_1(x1)
         x3 = self.residual_conv_2(x2)

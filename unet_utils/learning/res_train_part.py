@@ -159,8 +159,8 @@ def train(args):
     best_val_loss = 1.
     start_epoch = 0
 
-    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
-    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
+    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
+    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
     val_loader = create_data_loaders(data_path = args.data_path_val, args = args, mode='val')
     val_loss_log = np.empty((0, 2))
     for epoch in range(start_epoch, args.num_epochs):
