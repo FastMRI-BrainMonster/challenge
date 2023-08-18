@@ -8,8 +8,8 @@ import torch
 
 
 # imagepath = '/Data/train/image'
-kspacepath = '/Data/train/kspace'
-savepath = '/home/yxxshin/Desktop/FastMRI/challenge/grappa'
+kspacepath = '/Data/leaderboard/acc8/kspace'
+savepath = '/root/grappa/leaderboard/acc8'
 
 if not os.path.exists(savepath):
     os.makedirs(savepath)

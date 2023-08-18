@@ -9,7 +9,7 @@ import torch
 
 imagepath = '/Data/train/image'
 # kspacepath = '/Data/train/kspace'
-savepath = '/home/yxxshin/Desktop/FastMRI/challenge/grappa'
+savepath = '/root/grappa/train'
 
 if not os.path.exists(savepath):
     os.makedirs(savepath)

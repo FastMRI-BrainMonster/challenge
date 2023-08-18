@@ -1,5 +1,3 @@
-# Original Code from https://github.com/jun-pac/SNU-fastMRI-22-summer/blob/master/Code/data_preparation.py
-
 import h5py
 import numpy as np
 import os
