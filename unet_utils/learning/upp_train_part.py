@@ -16,39 +16,50 @@ from utils.data.data_augment import DataAugmentor
 from unet_utils.data.load_data import create_data_loaders
 from utils.common.utils import save_reconstructions, ssim_loss
 from utils.common.loss_function import SSIMLoss
-from utils.common.loss_function import PSNR
-from unet_utils.model.RDUNet import RDUNet
+from unet_utils.model.Unetpp import UNet3Plus
 
 def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     model.train()
     start_epoch = start_iter = time.perf_counter()
     len_loader = len(data_loader)
     total_loss = 0.
+    count = 0
+    
     for iter, data in enumerate(data_loader):
-        if iter > 0:
-            break
+#         if iter > 0:
+#             break
         input_, target, maximum, fname, slices = data
         # [ADD] by yxxshin (2023.07.22)
         brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
-
-        input_ = input_.cuda(non_blocking=True)
-        target = target.cuda(non_blocking=True)
-        maximum = maximum.cuda(non_blocking=True)
         
         input_ = input_.unsqueeze(0)
         if args.is_grappa == 'y':
             input_ = input_.squeeze(0)
+        input_ = input_.cuda(non_blocking=True)
+        target = target.cuda(non_blocking=True)
+        maximum = maximum.cuda(non_blocking=True)
+
+        if loss_type(input_[:,0]*brain_mask, target*brain_mask, maximum).item() < args.threshold:
+            continue
+            
         output = model(input_)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
-        #loss = loss_type(output, target, maximum)
+        
+        
+#         for i, (name, child) in enumerate(model.named_children()):
+#             if name == 'output_layer':
+#                 for param in child.parameters():
+#                     print(param)
+        # loss = loss_type(output, target, maximum)
+#         import pdb; pdb.set_trace()
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
-
-        if iter % args.report_interval == 0:
+        
+        if count % args.report_interval == 0:
             print(
                 f'Epoch = [{epoch:3d}/{args.num_epochs:3d}] '
                 f'Iter = [{iter:4d}/{len(data_loader):4d}] '
@@ -56,29 +67,34 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
                 f'Time = {time.perf_counter() - start_iter:.4f}s',
             )
             start_iter = time.perf_counter()
-    total_loss = total_loss / len_loader
-    
+        count = count + 1
+        
+    #total_loss = total_loss / len_loader
+    total_loss = total_loss / count
+
     #wandb.log({"Train_Loss": total_loss})
     return total_loss, time.perf_counter() - start_epoch
 
 
-def validate(args, model, data_loader):
+def validate(args, model, data_loader, loss_type):
     model.eval()
     reconstructions = defaultdict(dict)
     targets = defaultdict(dict)
     start = time.perf_counter()
-
+    
     with torch.no_grad():
         for iter, data in enumerate(data_loader):
-            if iter > 0:
-                break
+#             if iter > 0:
+#                 break
             input_, target, maximum, fnames, slices = data
             input_ = input_.cuda(non_blocking=True).unsqueeze(0)
             if args.is_grappa == 'y':
                 input_ = input_.squeeze(0)
+            
             output = model(input_)
             target = target.cuda(non_blocking=True)
-
+            maximum = maximum.cuda(non_blocking=True)
+            
             for i in range(1):
             #only batch1 case?
                  # [ADD] by yxxshin (2023.07.30)
@@ -86,6 +102,10 @@ def validate(args, model, data_loader):
                 brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
                 brain_mask = brain_mask.cuda(non_blocking=True)
                 
+                if loss_type(input_[:,0]*brain_mask, target*brain_mask, maximum).item() < args.threshold:
+                    output = input_[:,0]
+            
+
                 output[i] = output[i] * brain_mask[slices[0]]
                 target[i] = target[i] * brain_mask[slices[0]]
 
@@ -140,30 +160,30 @@ def download_model(url, fname):
             fh.write(chunk)
 
 
-        
+
 def train(args):
     device = torch.device(f'cuda:{args.GPU_NUM}' if torch.cuda.is_available() else 'cpu')
     torch.cuda.set_device(device)
     print('Current cuda device: ', torch.cuda.current_device())
 
-    model = RDUNet(args)
+    model = UNet3Plus(args.chanels)
     model.to(device=device)
 
     loss_type = SSIMLoss().to(device=device)
-    #loss_type = PSNR().to(device=device)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
-
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer=optimizer, lr_lambda=lambda epoch: 0.95 ** epoch, last_epoch=-1, verbose=False)
     best_val_loss = 1.
     start_epoch = 0
 
-    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
-    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
+    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
+    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
     val_loader = create_data_loaders(data_path = args.data_path_val, args = args, mode='val')
     val_loss_log = np.empty((0, 2))
     for epoch in range(start_epoch, args.num_epochs):
         print(f'Epoch #{epoch:2d} ............... {args.net_name} ...............')
         train_loss, train_time = train_epoch(args, epoch, model, train_loader, optimizer, loss_type)
-        val_loss, num_subjects, reconstructions, targets, inputs, val_time = validate(args, model, val_loader)
+        scheduler.step()
+        val_loss, num_subjects, reconstructions, targets, inputs, val_time = validate(args, model, val_loader, loss_type)
         
         val_loss_log = np.append(val_loss_log, np.array([[epoch, val_loss]]), axis=0)
         file_path = os.path.join(args.val_loss_dir, "val_loss_log")

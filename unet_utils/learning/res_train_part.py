@@ -23,6 +23,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     start_epoch = start_iter = time.perf_counter()
     len_loader = len(data_loader)
     total_loss = 0.
+    count = 0
     for iter, data in enumerate(data_loader):
 #         if iter > 0:
 #             break
@@ -38,7 +39,10 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
         input_ = input_.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
         maximum = maximum.cuda(non_blocking=True)
-
+        
+        if loss_type(input_[:,0]*brain_mask, target*brain_mask, maximum).item() < args.threshold:
+            continue
+        
         output = model(input_)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
 #         for i, (name, child) in enumerate(model.named_children()):
@@ -52,7 +56,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
         optimizer.step()
         total_loss += loss.item()
 
-        if iter % args.report_interval == 0:
+        if count % args.report_interval == 0:
             print(
                 f'Epoch = [{epoch:3d}/{args.num_epochs:3d}] '
                 f'Iter = [{iter:4d}/{len(data_loader):4d}] '
@@ -60,13 +64,14 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
                 f'Time = {time.perf_counter() - start_iter:.4f}s',
             )
             start_iter = time.perf_counter()
-    total_loss = total_loss / len_loader
+        count = count + 1
+    total_loss = total_loss / count
 
     #wandb.log({"Train_Loss": total_loss})
     return total_loss, time.perf_counter() - start_epoch
 
 
-def validate(args, model, data_loader):
+def validate(args, model, data_loader, loss_type):
     model.eval()
     reconstructions = defaultdict(dict)
     targets = defaultdict(dict)
@@ -82,6 +87,7 @@ def validate(args, model, data_loader):
                 input_ = input_.squeeze(0)
             output = model(input_)
             target = target.cuda(non_blocking=True)
+            maximum = maximum.cuda(non_blocking=True)
 
             for i in range(1):
             #only batch1 case?
@@ -89,7 +95,10 @@ def validate(args, model, data_loader):
                 brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/val', fnames[i]), 'r')
                 brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
                 brain_mask = brain_mask.cuda(non_blocking=True)
-
+                
+                if loss_type(input_[:,0]*brain_mask, target*brain_mask, maximum).item() < args.threshold:
+                    output = input_[:,0]
+                
                 output[i] = output[i] * brain_mask[slices[0]]
                 target[i] = target[i] * brain_mask[slices[0]]
 
@@ -159,14 +168,14 @@ def train(args):
     best_val_loss = 1.
     start_epoch = 0
 
-    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
-    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
+    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
+    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
     val_loader = create_data_loaders(data_path = args.data_path_val, args = args, mode='val')
     val_loss_log = np.empty((0, 2))
     for epoch in range(start_epoch, args.num_epochs):
         print(f'Epoch #{epoch:2d} ............... {args.net_name} ...............')
         train_loss, train_time = train_epoch(args, epoch, model, train_loader, optimizer, loss_type)
-        val_loss, num_subjects, reconstructions, targets, inputs, val_time = validate(args, model, val_loader)
+        val_loss, num_subjects, reconstructions, targets, inputs, val_time = validate(args, model, val_loader, loss_type)
 
         val_loss_log = np.append(val_loss_log, np.array([[epoch, val_loss]]), axis=0)
         file_path = os.path.join(args.val_loss_dir, "val_loss_log")

@@ -7,7 +7,7 @@ from utils.data.data_augment import DataAugmentor
 
 if os.getcwd() + '/unet_utils/model/' not in sys.path:
     sys.path.insert(1, os.getcwd() + '/utils/model/')
-from unet_utils.learning.res_train_part import train
+from unet_utils.learning.upp_train_part import train
 
 if os.getcwd() + '/utils/common/' not in sys.path:
     sys.path.insert(1, os.getcwd() + '/utils/common/')
@@ -37,6 +37,7 @@ def parse():
     parser.add_argument('--seed', type=int, default=430, help='Fix random seed')
     parser.add_argument('--num_workers', type=int, default=4, help='num_workers')
     parser.add_argument('--threshold', type=float, default=0.012, help='Theshold for second model')
+
     #[modified]
     return parser
 

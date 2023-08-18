@@ -22,7 +22,7 @@ def parse():
     parser.add_argument('-b', '--batch-size', type=int, default=1, help='Batch size')
     parser.add_argument('-e', '--num-epochs', type=int, default=1, help='Number of epochs')
     parser.add_argument('-l', '--lr', type=float, default=1e-3, help='Learning rate')
-    parser.add_argument('-f', '--base_filters', type=int, default=128, help='Base filters')
+    parser.add_argument('-f', '--base_filters', type=int, default=64, help='Base filters')
     parser.add_argument('-c', '--chanels', type=int, default=1, help='gray:1, color:3')
     
     parser.add_argument('-r', '--report-interval', type=int, default=500, help='Report interval')
