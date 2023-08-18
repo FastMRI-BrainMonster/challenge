@@ -1,4 +1,4 @@
-# Starting
+# Training Steps
 
 First, git clone this repo and checkout to `dev` branch
 
@@ -28,10 +28,10 @@ pip install opencv-python
 python utils/data/preprocessing.py
 ```
 
-If you get an AttributeError (module ‘numpy’ has no attribute ‘typeDict’), downgrade your numpy version to 1.21, like this:
+If you get an AttributeError (module ‘numpy’ has no attribute ‘typeDict’), downgrade your numpy version to 1.23, like this:
 
 ```bash
-pip install numpy==1.21
+pip install numpy==1.23
 ```
 
 This will make a `brain_mask` folder. For grappa files, run these:
@@ -44,6 +44,8 @@ python utils/data/generate_grappa_acc8_train.py
 python utils/data/generate_grappa_acc8_val.py
 python utils/data/generate_grappa_acc8_leaderboard.py
 ```
+
+If you get a ValueError (numpy.ndarray size changed, may indicate binary incompatibility), downgrade your numpy version to 1.23.
 
 You are ready now! Train the E2E-VarNet by
 
