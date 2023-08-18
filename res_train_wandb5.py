@@ -13,7 +13,24 @@ if os.getcwd() + '/utils/common/' not in sys.path:
     sys.path.insert(1, os.getcwd() + '/utils/common/')
 from utils.common.utils import seed_fix
 
+import wandb
 
+def wandb_init():
+    sweep_config = {
+        'method': 'random',
+        'metric': {'goal': 'minimize', 'name': 'Valid_Loss'},
+    }
+
+    parameters_dict = {
+        'lr': {
+            'values': [5e-4]
+        }
+    }
+
+    sweep_config['parameters'] = parameters_dict
+    
+    sweep_id = wandb.sweep(sweep_config, project = 'FastMRI')
+    return sweep_id
 
 def parse():
     parser = argparse.ArgumentParser(description='Train Varnet on FastMRI challenge Images',
@@ -40,6 +57,14 @@ def parse():
     #[modified]
     return parser
 
+def train_wandb(config = None):
+    with wandb.init(config = config):
+        config = wandb.config
+        args.lr = config.lr
+
+        torch.cuda.empty_cache()
+        train(args)
+
 if __name__ == '__main__':
     # [add] parser for augmentation
     parser = parse()
@@ -50,10 +75,10 @@ if __name__ == '__main__':
     if args.seed is not None:
         seed_fix(args.seed)
 
-    args.exp_dir = '../result' / args.net_name / 'checkpoints'
-    args.val_dir = '../result' / args.net_name / 'reconstructions_val'
-    args.main_dir = '../result' / args.net_name / __file__
-    args.val_loss_dir = '../result' / args.net_name
+    args.exp_dir = '../result5' / args.net_name / 'checkpoints'
+    args.val_dir = '../result5' / args.net_name / 'reconstructions_val'
+    args.main_dir = '../result5' / args.net_name / __file__
+    args.val_loss_dir = '../result5' / args.net_name
 
     if args.is_grappa == 'y':
         args.chanels = 2
@@ -61,4 +86,6 @@ if __name__ == '__main__':
     args.exp_dir.mkdir(parents=True, exist_ok=True)
     args.val_dir.mkdir(parents=True, exist_ok=True)
 
-    train(args)
+    sweep_id = wandb_init()
+
+    wandb.agent(sweep_id, train_wandb, count = 5)

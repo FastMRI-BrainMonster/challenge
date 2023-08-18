@@ -23,13 +23,13 @@ def wandb_init():
 
     parameters_dict = {
         'cascade': {
-            'values': [1, 5, 9]
+            'values': [6]
         },
         'chans': {
-            'values': [3, 9, 15]
+            'values': [12]
         },
         'sens_chans': {
-            'values': [2, 4, 6]
+            'values': [5]
         }
     }
 
@@ -60,6 +60,7 @@ def parse():
     parser.add_argument('--max-key', type=str, default='max', help='Name of max key in attributes')
     parser.add_argument('--seed', type=int, default=430, help='Fix random seed')
     #[modified]
+    parser.add_argument('--num_workers', type=int, default=4, help='num_workers')
     return parser
 
 

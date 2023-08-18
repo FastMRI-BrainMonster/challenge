@@ -13,7 +13,24 @@ if os.getcwd() + '/utils/common/' not in sys.path:
     sys.path.insert(1, os.getcwd() + '/utils/common/')
 from utils.common.utils import seed_fix
 
+import wandb
 
+def wandb_init():
+    sweep_config = {
+        'method': 'random',
+        'metric': {'goal': 'minimize', 'name': 'Valid_Loss'},
+    }
+
+    parameters_dict = {
+        'lr': {
+            'values': [5e-5]
+        }
+    }
+
+    sweep_config['parameters'] = parameters_dict
+    
+    sweep_id = wandb.sweep(sweep_config, project = 'FastMRI')
+    return sweep_id
 
 def parse():
     parser = argparse.ArgumentParser(description='Train Varnet on FastMRI challenge Images',
@@ -40,6 +57,14 @@ def parse():
     #[modified]
     return parser
 
+def train_wandb(config = None):
+    with wandb.init(config = config):
+        config = wandb.config
+        args.lr = config.lr
+
+        torch.cuda.empty_cache()
+        train(args)
+
 if __name__ == '__main__':
     # [add] parser for augmentation
     parser = parse()
@@ -61,4 +86,6 @@ if __name__ == '__main__':
     args.exp_dir.mkdir(parents=True, exist_ok=True)
     args.val_dir.mkdir(parents=True, exist_ok=True)
 
-    train(args)
+    sweep_id = wandb_init()
+
+    wandb.agent(sweep_id, train_wandb, count = 5)

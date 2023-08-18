@@ -30,7 +30,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
         mask, kspace, target, maximum, fname, slices = data
         
         # [ADD] by yxxshin (2023.07.22)
-        brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
+        brain_mask_h5 = h5py.File(os.path.join('/home/yxxshin/Desktop/FastMRI/challenge/brain_mask/train', fname[0]), 'r')
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
         
@@ -57,7 +57,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
             start_iter = time.perf_counter()
     total_loss = total_loss / len_loader
     
-    #wandb.log({"Train_Loss": total_loss})
+    wandb.log({"Train_Loss": total_loss})
     return total_loss, time.perf_counter() - start_epoch
 
 
@@ -77,7 +77,7 @@ def validate(args, model, data_loader):
 
             for i in range(output.shape[0]):
                  # [ADD] by yxxshin (2023.07.30)
-                brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/val', fnames[i]), 'r')
+                brain_mask_h5 = h5py.File(os.path.join('/home/yxxshin/Desktop/FastMRI/challenge/brain_mask/val', fnames[i]), 'r')
                 brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
                 brain_mask = brain_mask.cuda(non_blocking=True)
                 
@@ -196,7 +196,7 @@ def train(args):
 
 
         val_loss = val_loss / num_subjects
-        #wandb.log({"Valid_Loss": val_loss})
+        wandb.log({"Valid_Loss": val_loss})
 
         is_new_best = val_loss < best_val_loss
         best_val_loss = min(best_val_loss, val_loss)

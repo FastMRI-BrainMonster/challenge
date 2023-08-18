@@ -29,7 +29,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
             break
         input_, target, maximum, fname, slices = data
         # [ADD] by yxxshin (2023.07.22)
-        brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/train', fname[0]), 'r')
+        brain_mask_h5 = h5py.File(os.path.join('/home/yxxshin/Desktop/FastMRI/challenge/brain_mask/train', fname[0]), 'r')
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
 
@@ -82,7 +82,7 @@ def validate(args, model, data_loader):
             for i in range(1):
             #only batch1 case?
                  # [ADD] by yxxshin (2023.07.30)
-                brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/val', fnames[i]), 'r')
+                brain_mask_h5 = h5py.File(os.path.join('/home/yxxshin/Desktop/FastMRI/challenge/brain_mask/val', fnames[i]), 'r')
                 brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
                 brain_mask = brain_mask.cuda(non_blocking=True)
                 
@@ -156,8 +156,7 @@ def train(args):
     best_val_loss = 1.
     start_epoch = 0
 
-    #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
-    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
+    train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
     val_loader = create_data_loaders(data_path = args.data_path_val, args = args, mode='val')
     val_loss_log = np.empty((0, 2))
     for epoch in range(start_epoch, args.num_epochs):

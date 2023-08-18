@@ -26,8 +26,9 @@ def parse():
 
 if __name__ == '__main__':
     args = parse()
-    args.exp_dir = '../result' / args.net_name / 'checkpoints'
-    
+    # args.exp_dir = '../result' / args.net_name / 'checkpoints'
+    args.exp_dir = Path('/home/yxxshin/Desktop/FastMRI_DEV/epoch61/test_varnet/checkpoints')
+
     # acc4
     args.data_path = args.path_data / "acc4"
     args.forward_dir = Path('../Data_ResUNet/leaderboard/acc4')

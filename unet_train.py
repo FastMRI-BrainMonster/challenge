@@ -27,13 +27,13 @@ def parse():
     
     parser.add_argument('-r', '--report-interval', type=int, default=500, help='Report interval')
     parser.add_argument('-n', '--net-name', type=Path, default='test_unet', help='Name of network')
-    parser.add_argument('-t', '--data-path-train', type=Path, default='/root/Data_ResUNet/train/', help='Directory of train data')
-    parser.add_argument('-v', '--data-path-val', type=Path, default='/root/Data_ResUNet/val/', help='Directory of validation data')
+    parser.add_argument('-t', '--data-path-train', type=Path, default='/home/yxxshin/Desktop/FastMRI_DEV/Data_ResUNet/train/', help='Directory of train data')
+    parser.add_argument('-v', '--data-path-val', type=Path, default='/home/yxxshin/Desktop/FastMRI_DEV/Data_ResUNet/val/', help='Directory of validation data')
     parser.add_argument('--max-key', type=str, default='max', help='Name of max key in attributes')
     parser.add_argument('--input-key', type=str, default='reconstruction', help='Name of input key')
     parser.add_argument('--target-key', type=str, default='image_label', help='Name of target key')
     parser.add_argument('--is_grappa', type=str, default='y', help='image + grappa image')
-    parser.add_argument('--grappa_path', type=str, default='/root/grappa', help='grappa path')
+    parser.add_argument('--grappa_path', type=str, default='/home/yxxshin/Desktop/FastMRI_DEV/challenge/grappa', help='grappa path')
     parser.add_argument('--seed', type=int, default=430, help='Fix random seed')
     parser.add_argument('--num_workers', type=int, default=4, help='num_workers')
 

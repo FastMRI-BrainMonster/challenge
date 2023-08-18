@@ -44,7 +44,7 @@ def save_images(args):
     model = VarNet(num_cascades=args.cascade, chans=args.chans, sens_chans=args.sens_chans)
     model.to(device=device)
     
-    checkpoint = torch.load(args.exp_dir / 'best_model.pt', map_location='cpu')
+    checkpoint = torch.load('/home/yxxshin/Desktop/FastMRI_DEV/epoch61/test_varnet/checkpoints/best_model.pt', map_location='cpu')
     print(checkpoint['epoch'], checkpoint['best_val_loss'].item())
     model.load_state_dict(checkpoint['model'])
     

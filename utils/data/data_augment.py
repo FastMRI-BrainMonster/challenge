@@ -10,7 +10,7 @@ import torch
 import torchvision.transforms.functional as TF
 from utils.data.helpers import complex_crop_if_needed, crop_if_needed, complex_channel_first, complex_channel_last
 import sys
-sys.path.append('/root/challenge/utils/model')
+sys.path.append('/home/yxxshin/Desktop/FastMRI_DEV/challenge/utils/model')
 from fastmri.data import transforms as T
 from fastmri import fft2c, ifft2c, rss_complex, complex_abs
 
@@ -353,7 +353,7 @@ class DataAugmentor:
         parser.add_argument(
             '--aug_weight_rotation', 
             type=float, 
-            default=1.0, 
+            default=1, 
             help='Weight of arbitrary rotation probability. Augmentation probability will be multiplied by this constant'
         )  
         parser.add_argument(
