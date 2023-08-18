@@ -25,7 +25,7 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     total_loss = 0.
     count = 0
     for iter, data in enumerate(data_loader):
-#         if iter > 0:
+#         if iter > 1:
 #             break
         input_, target, maximum, fname, slices = data
         # [ADD] by yxxshin (2023.07.22)
@@ -33,16 +33,17 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
         brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])[slices[0]]
         brain_mask = brain_mask.cuda(non_blocking=True)
 
-        input_ = input_.unsqueeze(0)
-        if args.is_grappa == 'y':
-            input_ = input_.squeeze(0)
+        if args.is_grappa != 'y' and args.given_grappa != 'y':
+            input_ = input_.unsqueeze(0)
         input_ = input_.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
         maximum = maximum.cuda(non_blocking=True)
         
+        import pdb; pdb.set_trace()
+    
         if loss_type(input_[:,0]*brain_mask, target*brain_mask, maximum).item() < args.threshold:
             continue
-        
+            
         output = model(input_)
         loss = loss_type(output * brain_mask, target * brain_mask, maximum)
 #         for i, (name, child) in enumerate(model.named_children()):
@@ -82,9 +83,10 @@ def validate(args, model, data_loader, loss_type):
 #             if iter > 0:
 #                 break
             input_, target, maximum, fnames, slices = data
-            input_ = input_.cuda(non_blocking=True).unsqueeze(0)
-            if args.is_grappa == 'y':
-                input_ = input_.squeeze(0)
+            if args.is_grappa != 'y' and args.given_grappa != 'y':
+                input_ = input_.unsqueeze(0)
+            input_ = input_.cuda(non_blocking=True)
+            
             output = model(input_)
             target = target.cuda(non_blocking=True)
             maximum = maximum.cuda(non_blocking=True)

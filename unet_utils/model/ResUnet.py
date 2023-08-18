@@ -70,7 +70,7 @@ class ResUnet(nn.Module):
     def norm(self, x: torch.Tensor):
         # group norm
         b, c, h, w = x.shape
-        x = x.view(b, 2, c // 2 * h * w)
+        x = x.view(b, c, c // c * h * w)
         
         mean = x.mean(dim=2).view(b, c, 1, 1)
         std = x.std(dim=2).view(b, c, 1, 1)
@@ -106,7 +106,9 @@ class ResUnet(nn.Module):
 
         x10 = self.up_residual_conv3(x9)
 
-        output = self.output_layer(x10).squeeze(0)
+        output = self.output_layer(x10)
+        if len(output.shape) == 4:
+            output = output.squeeze(0)
         #output = self.unnorm(output, mean, std)
         #import pdb; pdb.set_trace()
         return output

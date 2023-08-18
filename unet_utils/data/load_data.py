@@ -7,12 +7,13 @@ import numpy as np
 import os
 
 class SliceData(Dataset):
-    def __init__(self, root, transform,input_key,target_key, mode, is_grappa, grappa_path, forward=False):
+    def __init__(self, root, transform,input_key,target_key, mode, is_grappa, given_grappa, grappa_path, forward=False):
         self.transform = transform
         self.input_key = input_key
         self.target_key = target_key
         self.forward = forward
         self.is_grappa = is_grappa
+        self.given_grappa = given_grappa
         self.grappa_path = grappa_path
         self.target = []
         self.input = []
@@ -74,6 +75,13 @@ class SliceData(Dataset):
                 input_grappa_ = hf['pygrappa'][dataslice]
         else:
             input_grappa_ = None
+        
+        if self.given_grappa == 'y':
+            with h5py.File(target_fname, "r") as hf:
+                given_grappa_ = hf['image_grappa'][dataslice]
+        else:
+            given_grappa_ = None
+        
         if self.forward:
             target = -1
             attrs = -1
@@ -81,8 +89,9 @@ class SliceData(Dataset):
             with h5py.File(target_fname, "r") as hf:
                 target = hf[self.target_key][dataslice]
                 attrs = dict(hf.attrs)
+        
         input_fname = input_fname.split('/')[-1]
-        return self.transform(input_, input_grappa_, target, attrs, input_fname, dataslice)
+        return self.transform(input_, input_grappa_, given_grappa_, target, attrs, input_fname, dataslice)
 
 
 def create_data_loaders(data_path, args, mode, shuffle=False, isforward=False):
@@ -99,6 +108,7 @@ def create_data_loaders(data_path, args, mode, shuffle=False, isforward=False):
         target_key=target_key_,
         forward = isforward,
         is_grappa = args.is_grappa,
+        given_grappa = args.given_grappa,
         grappa_path = args.grappa_path,
         mode = mode
     )

@@ -33,6 +33,7 @@ def parse():
     parser.add_argument('--input-key', type=str, default='reconstruction', help='Name of input key')
     parser.add_argument('--target-key', type=str, default='image_label', help='Name of target key')
     parser.add_argument('--is_grappa', type=str, default='y', help='image + grappa image')
+    parser.add_argument('--given_grappa', type=str, default='n', help='image + grappa image')
     parser.add_argument('--grappa_path', type=str, default='/root/grappa', help='grappa path')
     parser.add_argument('--seed', type=int, default=430, help='Fix random seed')
     parser.add_argument('--num_workers', type=int, default=4, help='num_workers')
@@ -57,7 +58,9 @@ if __name__ == '__main__':
     args.val_loss_dir = '../result' / args.net_name
 
     if args.is_grappa == 'y':
-        args.chanels = 2
+        args.chanels = args.chanels + 1
+    if args.given_grappa == 'y':
+        args.chanels = args.chanels + 1
 
     args.exp_dir.mkdir(parents=True, exist_ok=True)
     args.val_dir.mkdir(parents=True, exist_ok=True)

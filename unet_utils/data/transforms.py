@@ -18,7 +18,7 @@ class DataTransform:
         self.max_key = max_key
         # [add] for augmentation
         
-    def __call__(self, input_, input_grappa, target, attrs, fname, slices):
+    def __call__(self, input_, input_grappa, given_grappa, target, attrs, fname, slices):
         if not self.isforward:
             target = to_tensor(target)
             maximum = attrs[self.max_key]
@@ -27,8 +27,15 @@ class DataTransform:
             maximum = -1
         
         input_ = to_tensor(input_)
-        if input_grappa is not None:
+        if input_grappa is not None and given_grappa is not None:
+            input_grappa = to_tensor(input_grappa)
+            given_grappa = to_tensor(given_grappa)
+            input_ = torch.stack((input_, input_grappa, given_grappa), 0)
+        elif input_grappa is not None:
             input_grappa = to_tensor(input_grappa)
             input_ = torch.stack((input_, input_grappa), 0)
+        elif given_grappa is not None:
+            given_grappa = to_tensor(given_grappa)
+            input_ = torch.stack((input_, given_grappa), 0)
         
         return input_, target, maximum, fname, slices
