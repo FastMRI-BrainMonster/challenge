@@ -50,7 +50,7 @@ If you get a ValueError (numpy.ndarray size changed, may indicate binary incompa
 You are ready now! Train the E2E-VarNet by
 
 ```bash
-python train.py --num-epochs 100 --cascade 6 --chans 12 --sens_chans 5
+python train.py --num-epochs 100 --cascade 6 --chans 12 --sens_chans 5 --aug_strength 0.5
 ```
 
 Because of the MRAugmentation strength, the total “num epochs” are important and also very meaningful for the result. Our best model (SSIM 0.982, just using E2E-VarNet) was found at epoch 61 with cascade 6, chans 12 and sens_chans 5, when total 100 epochs were given as the input hyperparameter. 
