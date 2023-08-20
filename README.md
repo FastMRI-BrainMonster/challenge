@@ -58,8 +58,45 @@ Because of the MRAugmentation strength, the total “num epochs” are important
 After training, reconstruct the images (using your best E2E-VarNet). In this code, we assume that our `best_model.pt` file is under the “../result/test_varnet/checkpoints” folder.
 
 ```bash
+python reconstruct.py --cascade 6 --chans 12 --sens_chans 5
+```
+
+- - -
+# UNET 
+Second pipeline(Unet) outptus were worse than Varnet outputs.
+But you can try our experiments. 
+
+First, check out to 'experiments' branch.
+
+Then, generates images(varnet outputs) for unet's input. It will be saved at "../Data_ResUNet" folder.
+
+```bash
 python save_images.py --cascade 6 --chans 12 --sens_chans 5
 python save_images_l.py --cascade 6 --chans 12 --sens_chans 5
 ```
+You can choose several models for second pipeline.
 
-[WIP] UNET
+Training each models by,  
+
+*ResUnet
+```bash
+python res_train.py
+```
+
+*Unet3+
+```bash
+python upp_train.py
+```
+
+*RDUnet
+```bash
+python unet_train.py
+```
+
+*Diffusion
+```bash
+python df_train.py
+```
+If you use grappa images as input, add arguments "--is_grappa y" for pygrappa and "--given_grappa y" for given grappa.
+
+
