@@ -36,7 +36,8 @@ class Upsample(nn.Module):
         return self.upsample(x)
 
 class ResUnet(nn.Module):
-    def __init__(self, channel, filters=[64, 128, 256, 512]):
+    #def __init__(self, channel, filters=[64, 128, 256, 512]):
+    def __init__(self, channel, filters=[128, 256, 512, 1024]):
         super(ResUnet, self).__init__()
         
         self.input_layer = nn.Sequential(

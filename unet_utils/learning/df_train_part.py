@@ -17,6 +17,7 @@ from unet_utils.data.load_data import create_data_loaders
 from utils.common.utils import save_reconstructions, ssim_loss
 from utils.common.loss_function import SSIMLoss
 from unet_utils.model.ResUnet import ResUnet
+from med_seg_diff_pytorch import Unet, MedSegDiff
 
 def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     model.train()
@@ -42,20 +43,12 @@ def train_epoch(args, epoch, model, data_loader, optimizer, loss_type):
     
         if loss_type(input_[:,0]*brain_mask, target*brain_mask, maximum).item() < args.threshold:
             continue
-            
-        output = model(input_)
-        loss = loss_type(output * brain_mask, target * brain_mask, maximum)
-#         for i, (name, child) in enumerate(model.named_children()):
-#             if name == 'output_layer':
-#                 for param in child.parameters():
-#                     print(param)
-        # loss = loss_type(output, target, maximum)
-#         import pdb; pdb.set_trace()
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item()
+        
+        loss = model(target * brain_mask, input_ * brain_mask)
 
+        loss.backward()
+        total_loss += loss.item()
+        
         if count % args.report_interval == 0:
             print(
                 f'Epoch = [{epoch:3d}/{args.num_epochs:3d}] '
@@ -76,17 +69,19 @@ def validate(args, model, data_loader, loss_type):
     reconstructions = defaultdict(dict)
     targets = defaultdict(dict)
     start = time.perf_counter()
-
+    
     with torch.no_grad():
         for iter, data in enumerate(data_loader):
 #             if iter > 0:
 #                 break
+            if iter % 20 != 0:
+                continue
             input_, target, maximum, fnames, slices = data
             if args.is_grappa != 'y' and args.given_grappa != 'y':
                 input_ = input_.unsqueeze(0)
             input_ = input_.cuda(non_blocking=True)
             
-            output = model(input_)
+            output = model.sample(input_).squeeze(0)
             target = target.cuda(non_blocking=True)
             maximum = maximum.cuda(non_blocking=True)
 
@@ -96,9 +91,6 @@ def validate(args, model, data_loader, loss_type):
                 brain_mask_h5 = h5py.File(os.path.join('/root/brain_mask/val', fnames[i]), 'r')
                 brain_mask = torch.from_numpy(brain_mask_h5['image_mask'][()])
                 brain_mask = brain_mask.cuda(non_blocking=True)
-                
-                if loss_type(input_[:,0]*brain_mask, target*brain_mask, maximum).item() < args.threshold:
-                    output = input_[:,0]
                 
                 output[i] = output[i] * brain_mask[slices[0]]
                 target[i] = target[i] * brain_mask[slices[0]]
@@ -160,8 +152,16 @@ def train(args):
     torch.cuda.set_device(device)
     print('Current cuda device: ', torch.cuda.current_device())
 
-    model = ResUnet(args.chanels)
-    model.to(device=device)
+#     model = ResUnet(args.chanels)
+#     model.to(device=device)
+    unet = Unet(
+    dim = 32,
+    image_size = 384,
+    mask_channels = 1,          # segmentation has 1 channel
+    input_img_channels = args.chanels,     # input images have 3 channels
+    dim_mults = (1, 2, 4, 8)
+)
+    model = MedSegDiff(unet,timesteps = 100).cuda()
 
     loss_type = SSIMLoss().to(device=device)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
@@ -171,7 +171,7 @@ def train(args):
 
     train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train', shuffle=True)
     #train_loader = create_data_loaders(data_path = args.data_path_train, args = args, mode='train')
-    val_loader = create_data_loaders(data_path = args.data_path_val, args = args, mode='val')
+    val_loader = create_data_loaders(data_path = args.data_path_val, args = args, mode='val', shuffle=True)
     val_loss_log = np.empty((0, 2))
     for epoch in range(start_epoch, args.num_epochs):
         print(f'Epoch #{epoch:2d} ............... {args.net_name} ...............')

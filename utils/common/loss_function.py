@@ -48,7 +48,7 @@ class SSIMLoss(nn.Module):
             ux ** 2 + uy ** 2 + C1,
             vx + vy + C2,
         )
-        D = B1 * B2
+        D = B1 * B2 + 1e-9
         S = (A1 * A2) / D
 
         return 1 - S.mean()

@@ -19,7 +19,10 @@ def parse():
     parser.add_argument('-c', '--chanels', type=int, default=1, help='gray:1, color:3')
     parser.add_argument('--input-key', type=str, default='reconstruction', help='Name of input key')
     parser.add_argument('--is_grappa', type=str, default='y', help='image + grappa image')
+    parser.add_argument('--given_grappa', type=str, default='n', help='image + grappa image')
     parser.add_argument('--grappa_path', type=str, default='/root/grappa', help='grappa path')
+    parser.add_argument('--threshold', type=float, default=0.012, help='Theshold for second model')
+
     args = parser.parse_args()
     return args
 
@@ -28,9 +31,12 @@ if __name__ == '__main__':
     args = parse()
     args.exp_dir = '../result' / args.net_name / 'checkpoints'
     if args.is_grappa == 'y':
-        args.chanels = 2
+        args.chanels = args.chanels + 1
+    if args.given_grappa == 'y':
+        args.chanels = args.chanels + 1
     # acc4
     args.data_path = args.path_data / "acc4"
+    args.acc = 'acc4'
     args.grappa_path = os.path.join('/root/grappa','leaderboard','acc4')
     args.forward_dir = '../result' / args.net_name / 'reconstructions_leaderboard' / "acc4"
     print(args.forward_dir)
@@ -38,6 +44,7 @@ if __name__ == '__main__':
     
     # acc8
     args.data_path = args.path_data / "acc8"
+    args.acc = 'acc8'
     args.grappa_path = os.path.join('/root/grappa','leaderboard','acc8')
     args.forward_dir = '../result' / args.net_name / 'reconstructions_leaderboard' / "acc8"
     print(args.forward_dir)

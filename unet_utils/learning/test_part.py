@@ -4,7 +4,7 @@ import torch
 from collections import defaultdict
 from utils.common.utils import save_reconstructions
 from unet_utils.data.load_data import create_data_loaders
-from unet_utils.model.RDUNet import RDUNet
+from unet_utils.model.ResUnet import ResUnet
 
 def test(args, model, data_loader):
     model.eval()
@@ -15,10 +15,14 @@ def test(args, model, data_loader):
 #                 break
             if i % 100 == 0:
                 print(f'Saved {i} images')
-            input_ = input_.cuda(non_blocking=True).unsqueeze(0)
-            if args.is_grappa is 'y':
-                input_ = input_.squeeze(0)
-            output = model(input_).squeeze(0)
+            
+            input_, target, maximum, fnames, slices = data
+            if args.is_grappa != 'y' and args.given_grappa != 'y':
+                input_ = input_.unsqueeze(0)
+            input_ = input_.cuda(non_blocking=True)
+            
+            
+            output = model(input_)
 
             for i in range(1):
                 reconstructions[fnames[i]][int(slices[i])] = output[i].cpu().numpy()
@@ -35,10 +39,11 @@ def forward(args):
     torch.cuda.set_device(device)
     print ('Current cuda device ', torch.cuda.current_device())
 
-    model = RDUNet(args)
+    model = ResUnet(args.chanels)
     model.to(device=device)
     
     checkpoint = torch.load(args.exp_dir / 'best_model.pt', map_location='cpu')
+    import pdb; pdb.set_trace()
     print(checkpoint['epoch'], checkpoint['best_val_loss'].item())
     model.load_state_dict(checkpoint['model'])
     
